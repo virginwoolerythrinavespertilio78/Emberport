@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using Emberport.Controls;
 using Emberport.Models;
 using Emberport.Services;
@@ -21,11 +22,17 @@ public partial class DashboardView : UserControl
     };
 
     private readonly IBinaryScanner _scanner = new BinaryScanner();
+    private readonly List<MonitoredService> _monitored = [];
+    private readonly DispatcherTimer _statusTimer;
 
     public DashboardView()
     {
         InitializeComponent();
         LoadServices();
+
+        _statusTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _statusTimer.Tick += OnStatusTick;
+        _statusTimer.Start();
     }
 
     private void OnRefreshClick(object sender, RoutedEventArgs e) => LoadServices();
@@ -35,6 +42,7 @@ public partial class DashboardView : UserControl
         var installations = _scanner.Scan(AppPaths.BinariesRoot);
 
         ServiceList.Items.Clear();
+        _monitored.Clear();
 
         foreach (var kind in ManagedServices)
         {
@@ -49,8 +57,12 @@ public partial class DashboardView : UserControl
                 IsDetected = installation is not null,
                 Version = installation?.Version ?? "—",
                 Detail = installation?.ExecutablePath ?? $"Place the binaries in {AppPaths.BinariesRoot}",
-                Status = ServiceStatus.Stopped,
             };
+
+            if (installation is not null)
+            {
+                Attach(card, kind, installation);
+            }
 
             ServiceList.Items.Add(card);
         }
@@ -61,4 +73,53 @@ public partial class DashboardView : UserControl
             ? $"No PHP versions found in {AppPaths.BinariesRoot}"
             : $"{phpCount} PHP version(s) available · workspace at {AppPaths.WorkspaceRoot}";
     }
+
+    private void Attach(ServiceCard card, ServiceKind kind, BinaryInstallation installation)
+    {
+        var process = ServiceRuntime.Current.For(kind);
+
+        card.Status = process.IsRunning ? ServiceStatus.Running : ServiceStatus.Stopped;
+
+        card.StartRequested += (_, _) =>
+        {
+            card.Status = ServiceStatus.Starting;
+
+            try
+            {
+                process.Start(new ProcessLaunchRequest { ExecutablePath = installation.ExecutablePath });
+                card.Status = ServiceStatus.Running;
+            }
+            catch (Exception exception)
+            {
+                card.Status = ServiceStatus.Faulted;
+                MessageBox.Show(exception.Message, $"Could not start {kind.ToDisplayName()}");
+            }
+        };
+
+        card.StopRequested += (_, _) =>
+        {
+            process.Stop();
+            card.Status = ServiceStatus.Stopped;
+        };
+
+        _monitored.Add(new MonitoredService(card, process));
+    }
+
+    // Polling keeps the UI honest when a service dies on its own.
+    private void OnStatusTick(object? sender, EventArgs e)
+    {
+        foreach (var (card, process) in _monitored)
+        {
+            if (process.IsRunning)
+            {
+                card.Status = ServiceStatus.Running;
+            }
+            else if (card.Status == ServiceStatus.Running)
+            {
+                card.Status = ServiceStatus.Stopped;
+            }
+        }
+    }
+
+    private sealed record MonitoredService(ServiceCard Card, ManagedProcess Process);
 }
