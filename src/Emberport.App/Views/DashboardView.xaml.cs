@@ -24,6 +24,7 @@ public partial class DashboardView : UserControl
     private readonly IBinaryScanner _scanner = new BinaryScanner();
     private readonly List<MonitoredService> _monitored = [];
     private readonly DispatcherTimer _statusTimer;
+    private IReadOnlyList<BinaryInstallation> _installations = [];
 
     public DashboardView()
     {
@@ -40,6 +41,7 @@ public partial class DashboardView : UserControl
     private void LoadServices()
     {
         var installations = _scanner.Scan(AppPaths.BinariesRoot);
+        _installations = installations;
 
         ServiceList.Items.Clear();
         _monitored.Clear();
@@ -105,19 +107,28 @@ public partial class DashboardView : UserControl
         _monitored.Add(new MonitoredService(card, process));
     }
 
-    private static ProcessLaunchRequest CreateLaunchRequest(ServiceKind kind, BinaryInstallation installation) =>
-    kind switch
+    private ProcessLaunchRequest CreateLaunchRequest(ServiceKind kind, BinaryInstallation installation)
     {
-        ServiceKind.Apache => new ProcessLaunchRequest
+        if (kind != ServiceKind.Apache)
+        {
+            return new ProcessLaunchRequest { ExecutablePath = installation.ExecutablePath };
+        }
+
+        var php = PhpSelection.Current.Resolve(_installations);
+
+        if (php is not null)
+        {
+            PhpConfigurator.EnsureConfigured(php);
+        }
+
+        var configPath = ApacheConfigurator.Prepare(installation, php, ApacheConfigurator.DefaultPort);
+
+        return new ProcessLaunchRequest
         {
             ExecutablePath = installation.ExecutablePath,
-            Arguments = $"-f \"{ApacheConfigurator.Prepare(installation, ApacheConfigurator.DefaultPort)}\"",
-        },
-        _ => new ProcessLaunchRequest
-        {
-            ExecutablePath = installation.ExecutablePath,
-        },
-    };
+            Arguments = $"-f \"{configPath}\"",
+        };
+    }
 
     // Polling keeps the UI honest when a service dies on its own.
     private void OnStatusTick(object? sender, EventArgs e)

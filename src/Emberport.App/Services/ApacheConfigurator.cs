@@ -9,16 +9,16 @@ public static class ApacheConfigurator
 {
     public const int DefaultPort = 80;
 
-    public static string Prepare(BinaryInstallation installation, int port)
+    public static string Prepare(BinaryInstallation apache, BinaryInstallation? php, int port)
     {
-        var templatePath = Path.Combine(installation.DirectoryPath, "conf", "httpd.conf");
+        var templatePath = Path.Combine(apache.DirectoryPath, "conf", "httpd.conf");
 
         if (!File.Exists(templatePath))
         {
             throw new FileNotFoundException("Apache is missing its default configuration.", templatePath);
         }
 
-        var serverRoot = ToApachePath(installation.DirectoryPath);
+        var serverRoot = ToApachePath(apache.DirectoryPath);
         var documentRoot = EnsureDocumentRoot();
 
         var rewritten = new List<string>();
@@ -40,7 +40,10 @@ public static class ApacheConfigurator
         rewritten.Add("</Directory>");
         rewritten.Add("DirectoryIndex index.php index.html index.htm");
 
-        var outputPath = Path.Combine(installation.DirectoryPath, "conf", "emberport.conf");
+        AppendPhp(rewritten, php);
+        AppendPhpMyAdmin(rewritten);
+
+        var outputPath = Path.Combine(apache.DirectoryPath, "conf", "emberport.conf");
         File.WriteAllLines(outputPath, rewritten);
 
         return outputPath;
@@ -97,6 +100,49 @@ public static class ApacheConfigurator
         }
 
         return ToApachePath(AppPaths.WwwRoot);
+    }
+
+    private static void AppendPhp(List<string> lines, BinaryInstallation? php)
+    {
+        if (php is null)
+        {
+            return;
+        }
+
+        var module = PhpConfigurator.FindApacheModule(php);
+
+        if (module is null)
+        {
+            // A non thread safe build has no Apache module; it can only run as CGI.
+            return;
+        }
+
+        lines.Add(string.Empty);
+        lines.Add($"# PHP {php.Version}");
+        lines.Add($"LoadModule php_module \"{ToApachePath(module)}\"");
+        lines.Add("AddHandler application/x-httpd-php .php");
+        lines.Add($"PHPIniDir \"{ToApachePath(php.DirectoryPath)}\"");
+    }
+
+    private static void AppendPhpMyAdmin(List<string> lines)
+    {
+        var path = Path.Combine(AppPaths.ToolsRoot, "phpmyadmin");
+
+        if (!Directory.Exists(path))
+        {
+            return;
+        }
+
+        var alias = ToApachePath(path);
+
+        lines.Add(string.Empty);
+        lines.Add("# phpMyAdmin");
+        lines.Add($"Alias /phpmyadmin \"{alias}\"");
+        lines.Add($"<Directory \"{alias}\">");
+        lines.Add("    Options Indexes FollowSymLinks");
+        lines.Add("    AllowOverride All");
+        lines.Add("    Require local");
+        lines.Add("</Directory>");
     }
 
     // Apache only understands forward slashes, even on Windows.
