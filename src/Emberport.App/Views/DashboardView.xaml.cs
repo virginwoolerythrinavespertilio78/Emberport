@@ -86,7 +86,7 @@ public partial class DashboardView : UserControl
 
             try
             {
-                process.Start(new ProcessLaunchRequest { ExecutablePath = installation.ExecutablePath });
+                process.Start(CreateLaunchRequest(kind, installation));
                 card.Status = ServiceStatus.Running;
             }
             catch (Exception exception)
@@ -104,6 +104,20 @@ public partial class DashboardView : UserControl
 
         _monitored.Add(new MonitoredService(card, process));
     }
+
+    private static ProcessLaunchRequest CreateLaunchRequest(ServiceKind kind, BinaryInstallation installation) =>
+    kind switch
+    {
+        ServiceKind.Apache => new ProcessLaunchRequest
+        {
+            ExecutablePath = installation.ExecutablePath,
+            Arguments = $"-f \"{ApacheConfigurator.Prepare(installation, ApacheConfigurator.DefaultPort)}\"",
+        },
+        _ => new ProcessLaunchRequest
+        {
+            ExecutablePath = installation.ExecutablePath,
+        },
+    };
 
     // Polling keeps the UI honest when a service dies on its own.
     private void OnStatusTick(object? sender, EventArgs e)
