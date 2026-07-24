@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using Emberport.Services;
 using Emberport.Views;
 
 namespace Emberport;
@@ -19,8 +18,7 @@ public partial class MainWindow : Window
 
         _pageFactories = new Dictionary<string, Func<UserControl>>
         {
-            ["dashboard"] = () => Placeholder("\uE80F", "Dashboard",
-                "A live overview of every service, with one-click start and stop controls."),
+            ["dashboard"] = () => new DashboardView(),
 
             ["apache"] = () => Placeholder("\uE774", "Apache",
                 "Configure the web server, manage ports and edit virtual hosts."),
@@ -49,8 +47,6 @@ public partial class MainWindow : Window
 
         NavigationSidebar.PageSelected += OnPageSelected;
         NavigateTo(DefaultPageKey);
-
-        DebugScanBinaries();
     }
 
     private static PlaceholderView Placeholder(string glyph, string title, string description) =>
@@ -73,18 +69,5 @@ public partial class MainWindow : Window
         }
 
         PageHost.Content = view;
-    }
-
-    // TEMPORARY: verifies the scanner output. Removed in the next step.
-    private static void DebugScanBinaries()
-    {
-        var scanner = new BinaryScanner();
-        var found = scanner.Scan(@"D:\Emberport\bin");
-
-        var report = found.Count == 0
-            ? "No installations found."
-            : string.Join(Environment.NewLine, found.Select(item => $"{item.DisplayName}  ->  {item.ExecutablePath}"));
-
-        MessageBox.Show(report, "Binary scan result");
     }
 }

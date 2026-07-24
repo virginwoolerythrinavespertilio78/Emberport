@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="Themes/Typography.xaml" />
                 <ResourceDictionary Source="Themes/WindowStyles.xaml" />
                 <ResourceDictionary Source="Themes/NavigationStyles.xaml" />
+                <ResourceDictionary Source="Themes/CardStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
