@@ -46,25 +46,33 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <controls:TitleBar Grid.Row="0" Loaded="TitleBar_Loaded" />
+            <controls:TitleBar Grid.Row="0" />
 
-            <StackPanel
-                Grid.Row="1"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-                <TextBlock
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <controls:Sidebar Grid.Column="0" />
+
+                <Grid Grid.Column="1" Background="{StaticResource SurfaceBaseBrush}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock
                     HorizontalAlignment="Center"
                     FontSize="{StaticResource FontSizeDisplay}"
                     FontWeight="SemiBold"
                     Foreground="{StaticResource EmberGradientBrush}"
                     Text="Emberport" />
-                <TextBlock
+                        <TextBlock
                     Margin="0,8,0,0"
                     HorizontalAlignment="Center"
                     FontSize="{StaticResource FontSizeCaption}"
                     Foreground="{StaticResource TextSecondaryBrush}"
                     Text="DEPLOY. MANAGE. IGNITE." />
-            </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Grid>
         </Grid>
     </Border>
 </Window>
