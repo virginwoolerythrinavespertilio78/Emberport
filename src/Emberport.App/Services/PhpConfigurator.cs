@@ -11,11 +11,11 @@ public static class PhpConfigurator
     private static readonly string[] DefaultExtensions =
     [
         "curl",
+        "exif",
         "fileinfo",
         "gd",
         "intl",
         "mbstring",
-        "exif",
         "mysqli",
         "openssl",
         "pdo_mysql",
@@ -46,35 +46,39 @@ public static class PhpConfigurator
             .Select(name => Path.Combine(php.DirectoryPath, name))
             .FirstOrDefault(File.Exists);
 
-        if (template is null)
-        {
-            return;
-        }
+        var lines = template is null
+            ? new List<string>()
+            : File.ReadAllLines(template).ToList();
 
-        var lines = File.ReadAllLines(template)
-            .Select(EnableKnownDirective)
-            .ToList();
+        AppendOverrides(lines, php);
 
         File.WriteAllLines(iniPath, lines);
     }
 
-    private static string EnableKnownDirective(string line)
+    // PHP keeps the last value it reads, so appending always wins over the template.
+    private static void AppendOverrides(List<string> lines, BinaryInstallation php)
     {
-        var trimmed = line.TrimStart();
+        var extensionDir = Path
+            .Combine(php.DirectoryPath, "ext")
+            .Replace('\\', '/');
 
-        if (trimmed.StartsWith(";extension_dir = \"ext\"", StringComparison.Ordinal))
-        {
-            return "extension_dir = \"ext\"";
-        }
+        lines.Add(string.Empty);
+        lines.Add("; --- Emberport -------------------------------------------------------");
+        lines.Add($"extension_dir = \"{extensionDir}\"");
+        lines.Add(string.Empty);
 
         foreach (var extension in DefaultExtensions)
         {
-            if (trimmed.Equals($";extension={extension}", StringComparison.OrdinalIgnoreCase))
-            {
-                return $"extension={extension}";
-            }
+            lines.Add($"extension={extension}");
         }
 
-        return line;
+        lines.Add(string.Empty);
+        lines.Add("date.timezone = UTC");
+        lines.Add("memory_limit = 512M");
+        lines.Add("max_execution_time = 300");
+        lines.Add("upload_max_filesize = 128M");
+        lines.Add("post_max_size = 128M");
+        lines.Add("display_errors = On");
+        lines.Add("error_reporting = E_ALL");
     }
 }
