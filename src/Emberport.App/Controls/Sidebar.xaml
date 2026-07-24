@@ -24,6 +24,8 @@
                     <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="OVERVIEW" />
 
                     <RadioButton
+                        x:Uid="dashboard"
+                        Checked="OnNavItemChecked"
                         Content="Dashboard"
                         IsChecked="True"
                         Style="{StaticResource NavItemStyle}"
@@ -32,14 +34,20 @@
                     <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="SERVICES" />
 
                     <RadioButton
+                        x:Uid="apache"
+                        Checked="OnNavItemChecked"
                         Content="Apache"
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE774;" />
                     <RadioButton
+                        x:Uid="mysql"
+                        Checked="OnNavItemChecked"
                         Content="MySQL"
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE8F1;" />
                     <RadioButton
+                        x:Uid="redis"
+                        Checked="OnNavItemChecked"
                         Content="Redis"
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE945;" />
@@ -47,14 +55,20 @@
                     <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="WORKSPACE" />
 
                     <RadioButton
+                        x:Uid="php"
+                        Checked="OnNavItemChecked"
                         Content="PHP"
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE943;" />
                     <RadioButton
+                        x:Uid="sites"
+                        Checked="OnNavItemChecked"
                         Content="Sites"
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE8B7;" />
                     <RadioButton
+                        x:Uid="logs"
+                        Checked="OnNavItemChecked"
                         Content="Logs"
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE7C3;" />
@@ -62,10 +76,14 @@
                     <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="SYSTEM" />
 
                     <RadioButton
+                        x:Uid="settings"
+                        Checked="OnNavItemChecked"
                         Content="Settings"
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE713;" />
                     <RadioButton
+                        x:Uid="about"
+                        Checked="OnNavItemChecked"
                         Content="About"
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE946;" />

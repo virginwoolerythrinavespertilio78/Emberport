@@ -54,24 +54,13 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <controls:Sidebar Grid.Column="0" />
+                <controls:Sidebar x:Name="NavigationSidebar" Grid.Column="0" Loaded="NavigationSidebar_Loaded" />
 
-                <Grid Grid.Column="1" Background="{StaticResource SurfaceBaseBrush}">
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock
-                    HorizontalAlignment="Center"
-                    FontSize="{StaticResource FontSizeDisplay}"
-                    FontWeight="SemiBold"
-                    Foreground="{StaticResource EmberGradientBrush}"
-                    Text="Emberport" />
-                        <TextBlock
-                    Margin="0,8,0,0"
-                    HorizontalAlignment="Center"
-                    FontSize="{StaticResource FontSizeCaption}"
-                    Foreground="{StaticResource TextSecondaryBrush}"
-                    Text="DEPLOY. MANAGE. IGNITE." />
-                    </StackPanel>
-                </Grid>
+                <ContentControl
+        x:Name="PageHost"
+        Grid.Column="1"
+        Margin="0"
+        Background="{StaticResource SurfaceBaseBrush}" />
             </Grid>
         </Grid>
     </Border>
