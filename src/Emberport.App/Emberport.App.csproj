@@ -19,10 +19,6 @@
     <Authors>Hojjat Jahanpour</Authors>
     <Description>A modern, minimal local development environment manager for Windows.</Description>
     <Copyright>Copyright © Hojjat Jahanpour</Copyright>
-
-    <!-- Windows-only desktop app; no other RIDs are supported -->
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <Platforms>x64</Platforms>
   </PropertyGroup>
 
 </Project>
