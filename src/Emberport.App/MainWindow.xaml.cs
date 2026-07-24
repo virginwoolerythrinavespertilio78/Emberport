@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using Emberport.Services;
 using Emberport.Views;
 
 namespace Emberport;
@@ -48,6 +49,8 @@ public partial class MainWindow : Window
 
         NavigationSidebar.PageSelected += OnPageSelected;
         NavigateTo(DefaultPageKey);
+
+        DebugScanBinaries();
     }
 
     private static PlaceholderView Placeholder(string glyph, string title, string description) =>
@@ -72,8 +75,16 @@ public partial class MainWindow : Window
         PageHost.Content = view;
     }
 
-    private void NavigationSidebar_Loaded(object sender, RoutedEventArgs e)
+    // TEMPORARY: verifies the scanner output. Removed in the next step.
+    private static void DebugScanBinaries()
     {
+        var scanner = new BinaryScanner();
+        var found = scanner.Scan(@"D:\Emberport\bin");
 
+        var report = found.Count == 0
+            ? "No installations found."
+            : string.Join(Environment.NewLine, found.Select(item => $"{item.DisplayName}  ->  {item.ExecutablePath}"));
+
+        MessageBox.Show(report, "Binary scan result");
     }
 }

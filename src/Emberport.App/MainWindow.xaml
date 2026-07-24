@@ -54,7 +54,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <controls:Sidebar x:Name="NavigationSidebar" Grid.Column="0" Loaded="NavigationSidebar_Loaded" />
+                <controls:Sidebar x:Name="NavigationSidebar" Grid.Column="0" />
 
                 <ContentControl
         x:Name="PageHost"
