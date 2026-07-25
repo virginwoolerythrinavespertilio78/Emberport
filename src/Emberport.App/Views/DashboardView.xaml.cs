@@ -43,6 +43,7 @@ public partial class DashboardView : UserControl
     {
         var installations = _scanner.Scan(AppPaths.BinariesRoot);
         _installations = installations;
+        ServiceLauncher.SetInstallations(_installations);
 
         ServiceList.Items.Clear();
         _monitored.Clear();
@@ -110,54 +111,19 @@ public partial class DashboardView : UserControl
 
     private ProcessLaunchRequest CreateLaunchRequest(ServiceKind kind, BinaryInstallation installation)
     {
-        switch (kind)
+        if (kind == ServiceKind.MySql && !MySqlConfigurator.IsInitialized())
         {
-            case ServiceKind.Apache:
-                {
-                    var php = PhpSelection.Current.Resolve(_installations);
-
-                    if (php is not null)
-                    {
-                        PhpConfigurator.EnsureConfigured(php);
-                    }
-
-                    PhpMyAdminConfigurator.EnsureConfigured(MySqlConfigurator.DefaultPort);
-                    var configPath = ApacheConfigurator.Prepare(installation, php, ApacheConfigurator.DefaultPort);
-
-                    return new ProcessLaunchRequest
-                    {
-                        ExecutablePath = installation.ExecutablePath,
-                        Arguments = $"-f \"{configPath}\"",
-                    };
-                }
-
-            case ServiceKind.MySql:
-                {
-                    var configPath = MySqlConfigurator.EnsureConfigured(installation, MySqlConfigurator.DefaultPort);
-
-                    PrepareMySqlStorage(installation, configPath);
-
-                    return new ProcessLaunchRequest
-                    {
-                        ExecutablePath = installation.ExecutablePath,
-                        Arguments = $"--defaults-file=\"{configPath}\" --console",
-                        WorkingDirectory = installation.DirectoryPath,
-                    };
-                }
-
-            default:
-                return new ProcessLaunchRequest { ExecutablePath = installation.ExecutablePath };
+            PrepareMySqlStorage(installation);
         }
+
+        return ServiceLauncher.CreateLaunchRequest(kind, installation);
     }
 
     // The very first launch has to build the system tables, which blocks the UI.
-    private static void PrepareMySqlStorage(BinaryInstallation installation, string configPath)
+    // The very first launch has to build the system tables, which blocks the UI.
+    private static void PrepareMySqlStorage(BinaryInstallation installation)
     {
-        if (MySqlConfigurator.IsInitialized())
-        {
-            MySqlConfigurator.EnsureInitialized(installation, configPath);
-            return;
-        }
+        var configPath = MySqlConfigurator.EnsureConfigured(installation, MySqlConfigurator.DefaultPort);
 
         MessageBox.Show(
             """
@@ -183,12 +149,6 @@ public partial class DashboardView : UserControl
         {
             Mouse.OverrideCursor = null;
         }
-
-        MessageBox.Show(
-            "MySQL storage is ready. The server is starting now.",
-            "Preparing MySQL",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
     }
 
     // Polling keeps the UI honest when a service dies on its own.

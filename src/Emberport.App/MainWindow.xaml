@@ -65,7 +65,7 @@
             <controls:WelcomeOverlay x:Name="Welcome"
                          Grid.RowSpan="10"
                          Grid.ColumnSpan="10"
-                         Panel.ZIndex="100" />
+                         Panel.ZIndex="100" Loaded="Welcome_Loaded" />
         </Grid>
     </Border>
 </Window>

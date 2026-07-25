@@ -29,8 +29,7 @@ public partial class MainWindow : Window
             ["redis"] = () => Placeholder("\uE945", "Redis",
                 "Control the Redis server and inspect its runtime output."),
 
-            ["php"] = () => Placeholder("\uE943", "PHP",
-                "Switch the active PHP version and toggle extensions in php.ini."),
+            ["php"] = () => new PhpView(),
 
             ["sites"] = () => Placeholder("\uE8B7", "Sites",
                 "Every folder in your projects directory, served as its own .test domain."),
@@ -69,5 +68,10 @@ public partial class MainWindow : Window
         }
 
         PageHost.Content = view;
+    }
+
+    private void Welcome_Loaded(object sender, RoutedEventArgs e)
+    {
+
     }
 }
