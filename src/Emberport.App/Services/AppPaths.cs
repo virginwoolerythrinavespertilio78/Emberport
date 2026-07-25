@@ -16,6 +16,10 @@ public static class AppPaths
 
     public static string WwwRoot => Path.Combine(WorkspaceRoot, "www");
 
+    public static string DataRoot => Path.Combine(WorkspaceRoot, "data");
+
+    public static string ConfigRoot => Path.Combine(WorkspaceRoot, "config");
+
     // In a published build the workspace sits next to the executable. During development the
     // executable lives under src\...\bin\Debug, so walk up until the real workspace is found.
     private static string ResolveWorkspaceRoot()

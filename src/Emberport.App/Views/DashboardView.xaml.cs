@@ -109,25 +109,42 @@ public partial class DashboardView : UserControl
 
     private ProcessLaunchRequest CreateLaunchRequest(ServiceKind kind, BinaryInstallation installation)
     {
-        if (kind != ServiceKind.Apache)
+        switch (kind)
         {
-            return new ProcessLaunchRequest { ExecutablePath = installation.ExecutablePath };
+            case ServiceKind.Apache:
+                {
+                    var php = PhpSelection.Current.Resolve(_installations);
+
+                    if (php is not null)
+                    {
+                        PhpConfigurator.EnsureConfigured(php);
+                    }
+
+                    var configPath = ApacheConfigurator.Prepare(installation, php, ApacheConfigurator.DefaultPort);
+
+                    return new ProcessLaunchRequest
+                    {
+                        ExecutablePath = installation.ExecutablePath,
+                        Arguments = $"-f \"{configPath}\"",
+                    };
+                }
+
+            case ServiceKind.MySql:
+                {
+                    var configPath = MySqlConfigurator.EnsureConfigured(installation, MySqlConfigurator.DefaultPort);
+                    MySqlConfigurator.EnsureInitialized(installation, configPath);
+
+                    return new ProcessLaunchRequest
+                    {
+                        ExecutablePath = installation.ExecutablePath,
+                        Arguments = $"--defaults-file=\"{configPath}\" --console",
+                        WorkingDirectory = installation.DirectoryPath,
+                    };
+                }
+
+            default:
+                return new ProcessLaunchRequest { ExecutablePath = installation.ExecutablePath };
         }
-
-        var php = PhpSelection.Current.Resolve(_installations);
-
-        if (php is not null)
-        {
-            PhpConfigurator.EnsureConfigured(php);
-        }
-
-        var configPath = ApacheConfigurator.Prepare(installation, php, ApacheConfigurator.DefaultPort);
-
-        return new ProcessLaunchRequest
-        {
-            ExecutablePath = installation.ExecutablePath,
-            Arguments = $"-f \"{configPath}\"",
-        };
     }
 
     // Polling keeps the UI honest when a service dies on its own.
