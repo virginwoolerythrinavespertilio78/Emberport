@@ -1,0 +1,125 @@
+<UserControl x:Class="Emberport.Controls.WelcomeOverlay"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource UiFontFamily}">
+
+    <UserControl.Resources>
+        <Storyboard x:Key="ShowStoryboard">
+            <DoubleAnimation Storyboard.TargetName="Backdrop"
+                             Storyboard.TargetProperty="Opacity"
+                             To="1" Duration="0:0:0.22" />
+            <DoubleAnimation Storyboard.TargetName="CardOffset"
+                             Storyboard.TargetProperty="Y"
+                             From="20" To="0" Duration="0:0:0.30">
+                <DoubleAnimation.EasingFunction>
+                    <QuadraticEase EasingMode="EaseOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+
+        <Storyboard x:Key="HideStoryboard" Completed="OnHideCompleted">
+            <DoubleAnimation Storyboard.TargetName="Backdrop"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0" Duration="0:0:0.18" />
+            <DoubleAnimation Storyboard.TargetName="CardOffset"
+                             Storyboard.TargetProperty="Y"
+                             To="14" Duration="0:0:0.18" />
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Grid x:Name="Backdrop" Opacity="0" Background="#D90A0A0C">
+
+        <Border Width="470"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Background="{StaticResource SurfaceRaisedBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource RadiusLg}"
+                ClipToBounds="True">
+
+            <Border.RenderTransform>
+                <TranslateTransform x:Name="CardOffset" />
+            </Border.RenderTransform>
+
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="52" ShadowDepth="12" Direction="270"
+                                  Opacity="0.6" Color="#000000" />
+            </Border.Effect>
+
+            <StackPanel>
+                <Rectangle Height="3" Fill="{StaticResource EmberGradientBrush}" />
+
+                <StackPanel Margin="32,28,32,26">
+
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="42" Height="42" CornerRadius="12"
+                                Background="{StaticResource EmberGradientBrush}">
+                            <TextBlock Text="E" FontSize="22" FontWeight="Bold"
+                                       Foreground="#0E0E10"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+
+                        <StackPanel Margin="15,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Emberport"
+                                       FontSize="{StaticResource FontSizeTitle}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock Text="DEPLOY · MANAGE · IGNITE"
+                                       Margin="0,4,0,0"
+                                       FontSize="10"
+                                       Foreground="{StaticResource EmberBrush}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Margin="0,24,0,0"
+                               TextWrapping="Wrap"
+                               LineHeight="22"
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{StaticResource TextSecondaryBrush}">
+                        Emberport is built and maintained by a single developer, after hours,
+                        with no company, no funding and no sponsors behind it.
+                        It is free today and it will stay free.
+                        <LineBreak /><LineBreak />
+                        If it saves you an afternoon of fighting with config files, a star on
+                        GitHub is the only thing asked in return. It costs nothing, and it is
+                        what keeps this project alive.
+                    </TextBlock>
+
+                    <Border Margin="0,22,0,0" Padding="13,10"
+                            CornerRadius="{StaticResource RadiusSm}"
+                            Background="#14FF6B1A"
+                            BorderBrush="#33FF6B1A"
+                            BorderThickness="1">
+                        <TextBlock Text="github.com/hojjatjh"
+                                   FontFamily="{StaticResource MonoFontFamily}"
+                                   FontSize="12"
+                                   Foreground="{StaticResource EmberHoverBrush}" />
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,26,0,0">
+                        <Button Content="Continue"
+                                MinWidth="100"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnContinueClick" />
+                        <Button Content="★   Star on GitHub"
+                                MinWidth="158"
+                                Margin="10,0,0,0"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Click="OnStarClick" />
+                    </StackPanel>
+
+                    <TextBlock Text="Press Esc to continue"
+                               HorizontalAlignment="Right"
+                               Margin="0,13,2,0"
+                               FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{StaticResource TextTertiaryBrush}" />
+
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

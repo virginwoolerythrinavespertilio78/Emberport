@@ -62,6 +62,10 @@
         Margin="0"
         Background="{StaticResource SurfaceBaseBrush}" />
             </Grid>
+            <controls:WelcomeOverlay x:Name="Welcome"
+                         Grid.RowSpan="10"
+                         Grid.ColumnSpan="10"
+                         Panel.ZIndex="100" />
         </Grid>
     </Border>
 </Window>
