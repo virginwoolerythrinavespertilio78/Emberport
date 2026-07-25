@@ -12,6 +12,8 @@ public static class AppPaths
 
     public static string BinariesRoot => Path.Combine(WorkspaceRoot, "bin");
 
+    public static string PhpRoot => Path.Combine(BinariesRoot, "php");
+
     public static string ToolsRoot => Path.Combine(WorkspaceRoot, "tools");
 
     public static string WwwRoot => Path.Combine(WorkspaceRoot, "www");

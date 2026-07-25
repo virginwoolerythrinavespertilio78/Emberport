@@ -76,6 +76,8 @@ public partial class DashboardView : UserControl
         SummaryLabel.Text = phpCount == 0
             ? $"No PHP versions found in {AppPaths.BinariesRoot}"
             : $"{phpCount} PHP version(s) available · workspace at {AppPaths.WorkspaceRoot}";
+
+        UpdateActivePhp();
     }
 
     private void Attach(ServiceCard card, ServiceKind kind, BinaryInstallation installation)
@@ -119,7 +121,13 @@ public partial class DashboardView : UserControl
         return ServiceLauncher.CreateLaunchRequest(kind, installation);
     }
 
-    // The very first launch has to build the system tables, which blocks the UI.
+    private void UpdateActivePhp()
+    {
+        var php = PhpSelection.Current.Resolve(ServiceLauncher.Installations);
+
+        ActivePhpText.Text = php is null ? "not found" : $"PHP {php.Version}";
+    }
+
     // The very first launch has to build the system tables, which blocks the UI.
     private static void PrepareMySqlStorage(BinaryInstallation installation)
     {
@@ -127,14 +135,14 @@ public partial class DashboardView : UserControl
 
         MessageBox.Show(
             """
-        MySQL needs to be prepared before it can run for the first time.
+            MySQL needs to be prepared before it can run for the first time.
 
-        Emberport will now create the database storage in the data folder.
-        This happens only once and can take up to a minute.
+            Emberport will now create the database storage in the data folder.
+            This happens only once and can take up to a minute.
 
-        The window may stop responding while this runs. That is expected,
-        please do not close Emberport until it finishes.
-        """,
+            The window may stop responding while this runs. That is expected,
+            please do not close Emberport until it finishes.
+            """,
             "Preparing MySQL",
             MessageBoxButton.OK,
             MessageBoxImage.Information);
@@ -165,6 +173,8 @@ public partial class DashboardView : UserControl
                 card.Status = ServiceStatus.Stopped;
             }
         }
+
+        UpdateActivePhp();
     }
 
     private sealed record MonitoredService(ServiceCard Card, ManagedProcess Process);

@@ -13,7 +13,12 @@
             <ItemsControl x:Name="VersionList" Margin="0,26,0,0">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <Border Margin="0,0,0,12"
+                                Padding="18,16"
+                                CornerRadius="{StaticResource RadiusMd}"
+                                Background="{StaticResource SurfaceRaisedBrush}"
+                                BorderBrush="{StaticResource BorderSubtleBrush}"
+                                BorderThickness="1">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -52,7 +57,7 @@
                                             <TextBlock Text="ACTIVE"
                                                        FontSize="9"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{StaticResource StatusRunningBrush}" />
+                                                       Foreground="#3DD68C" />
                                         </Border>
                                     </StackPanel>
 
@@ -89,6 +94,59 @@
                            FontSize="{StaticResource FontSizeBody}"
                            Foreground="{StaticResource TextSecondaryBrush}"
                            Text="No PHP build was found. Drop an extracted x64 Thread Safe build into the bin\php folder and restart Emberport." />
+            </Border>
+
+            <Border Margin="0,26,0,0"
+                    Padding="20,18"
+                    CornerRadius="{StaticResource RadiusMd}"
+                    Background="{StaticResource SurfaceRaisedBrush}"
+                    BorderBrush="{StaticResource BorderSubtleBrush}"
+                    BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="Add another version"
+                               FontSize="{StaticResource FontSizeHeading}"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+
+                    <TextBlock Margin="0,9,0,0"
+                               TextWrapping="Wrap"
+                               LineHeight="21"
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{StaticResource TextSecondaryBrush}">
+                        Download the zip archive of any PHP release, extract the whole folder,
+                        and drop it into the folder below. Emberport picks it up on the next launch.
+                        <LineBreak /><LineBreak />
+                        The build must be
+                        <Run FontWeight="SemiBold" Foreground="#F2F2F5">x64</Run> and
+                        <Run FontWeight="SemiBold" Foreground="#F2F2F5">Thread Safe</Run>.
+                        A file name containing "nts" will not load into Apache.
+                    </TextBlock>
+
+                    <Border Margin="0,16,0,0"
+                            Padding="13,11"
+                            CornerRadius="{StaticResource RadiusSm}"
+                            Background="#121215"
+                            BorderBrush="#33333C"
+                            BorderThickness="1">
+                        <TextBlock x:Name="PhpFolderPath"
+                                   FontFamily="{StaticResource MonoFontFamily}"
+                                   FontSize="12"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="#FF8340" />
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                        <Button Content="Open PHP folder"
+                                MinWidth="146"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Click="OnOpenFolderClick" />
+                        <Button Content="Download builds"
+                                MinWidth="146"
+                                Margin="10,0,0,0"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnDownloadClick" />
+                    </StackPanel>
+                </StackPanel>
             </Border>
 
         </StackPanel>

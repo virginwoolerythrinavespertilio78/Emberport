@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using Emberport.Models;
 using Emberport.Services;
+using System.Diagnostics;
+using System.IO;
 
 namespace Emberport.Views;
 
@@ -34,6 +36,7 @@ public partial class PhpView : UserControl
 
         VersionList.ItemsSource = items;
         EmptyState.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        PhpFolderPath.Text = AppPaths.PhpRoot;
     }
 
     private void OnUseVersionClick(object sender, RoutedEventArgs e)
@@ -51,6 +54,22 @@ public partial class PhpView : UserControl
 
         Reload();
     }
+
+    private void OnOpenFolderClick(object sender, RoutedEventArgs e)
+    {
+        var folder = AppPaths.PhpRoot;
+
+        // The folder may not exist yet on a fresh copy of Emberport.
+        Directory.CreateDirectory(folder);
+
+        Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
+    }
+
+    private void OnDownloadClick(object sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo("https://windows.php.net/download")
+        {
+            UseShellExecute = true,
+        });
 
     private sealed record PhpVersionItem(
         BinaryInstallation Installation,
