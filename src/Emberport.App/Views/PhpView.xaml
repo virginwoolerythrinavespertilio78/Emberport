@@ -64,6 +64,7 @@
                                                    FontSize="{StaticResource FontSizeHeading}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{StaticResource TextPrimaryBrush}" />
+
                                         <Border Margin="10,0,0,0"
                                                 Padding="8,2"
                                                 VerticalAlignment="Center"
@@ -74,6 +75,18 @@
                                                        FontSize="9"
                                                        FontWeight="SemiBold"
                                                        Foreground="#3DD68C" />
+                                        </Border>
+
+                                        <Border Margin="8,0,0,0"
+                                                Padding="8,2"
+                                                VerticalAlignment="Center"
+                                                CornerRadius="{StaticResource RadiusPill}"
+                                                Background="#1FF87171"
+                                                Visibility="{Binding IncompatibleBadge}">
+                                            <TextBlock Text="NTS · NOT SUPPORTED"
+                                                       FontSize="9"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#F87171" />
                                         </Border>
                                     </StackPanel>
 
@@ -136,7 +149,7 @@
                         The build must be
                         <Run FontWeight="SemiBold" Foreground="#F2F2F5">x64</Run> and
                         <Run FontWeight="SemiBold" Foreground="#F2F2F5">Thread Safe</Run>.
-                        A file name containing "nts" will not load into Apache.
+                        A build marked NTS has no Apache module and cannot be selected.
                     </TextBlock>
 
                     <Border Margin="0,16,0,0"

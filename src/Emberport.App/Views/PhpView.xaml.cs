@@ -43,7 +43,8 @@ public partial class PhpView : UserControl
                 installation,
                 $"PHP {installation.Version}",
                 installation.DirectoryPath,
-                isActive));
+                isActive,
+                PhpBuildInfo.IsThreadSafe(installation)));
         }
 
         VersionList.ItemsSource = items;
@@ -68,6 +69,18 @@ public partial class PhpView : UserControl
                 MessageBoxImage.Warning);
 
             Refresh();
+            return;
+        }
+
+        if (!PhpBuildInfo.IsThreadSafe(item.Installation))
+        {
+            MessageBox.Show(
+                "This is a Non Thread Safe build. It has no Apache module, so Apache would fail "
+                + "to start. Download the x64 Thread Safe archive of the same version instead.",
+                "Incompatible PHP build",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
             return;
         }
 
@@ -115,10 +128,14 @@ public partial class PhpView : UserControl
         BinaryInstallation Installation,
         string Title,
         string Location,
-        bool IsActive)
+        bool IsActive,
+        bool IsThreadSafe)
     {
         public Visibility ActiveBadge => IsActive ? Visibility.Visible : Visibility.Collapsed;
 
-        public Visibility SwitchAction => IsActive ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility IncompatibleBadge => IsThreadSafe ? Visibility.Collapsed : Visibility.Visible;
+
+        public Visibility SwitchAction =>
+            !IsActive && IsThreadSafe ? Visibility.Visible : Visibility.Collapsed;
     }
 }
