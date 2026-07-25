@@ -172,7 +172,7 @@ public partial class DashboardView : UserControl
     {
         var php = PhpSelection.Current.Resolve(ServiceLauncher.Installations);
 
-        ActivePhpText.Text = php is null ? "not found" : $"PHP {php.Version}";
+        ActivePhpText.Text = php is null ? "Not found" : php.Version;
     }
 
     // The very first launch has to build the system tables, which blocks the UI.
