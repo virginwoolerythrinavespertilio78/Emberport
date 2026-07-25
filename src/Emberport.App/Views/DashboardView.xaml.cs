@@ -1,7 +1,10 @@
 ﻿using Emberport.Controls;
 using Emberport.Models;
 using Emberport.Services;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,6 +38,16 @@ public partial class DashboardView : UserControl
         _statusTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _statusTimer.Tick += OnStatusTick;
         _statusTimer.Start();
+    }
+
+    private static string SiteUrl
+    {
+        get
+        {
+            var port = AppSettings.Current.ApachePort;
+
+            return port == 80 ? "http://localhost" : $"http://localhost:{port}";
+        }
     }
 
     private void OnRefreshClick(object sender, RoutedEventArgs e) => LoadServices();
@@ -76,6 +89,8 @@ public partial class DashboardView : UserControl
         SummaryLabel.Text = phpCount == 0
             ? $"No PHP versions found in {AppPaths.BinariesRoot}"
             : $"{phpCount} PHP version(s) available · workspace at {AppPaths.WorkspaceRoot}";
+
+        SiteUrlText.Text = $"{SiteUrl}  ·  {SiteUrl}/phpmyadmin";
 
         UpdateActivePhp();
     }
@@ -119,6 +134,38 @@ public partial class DashboardView : UserControl
         }
 
         return ServiceLauncher.CreateLaunchRequest(kind, installation);
+    }
+
+    private void OnOpenSiteClick(object sender, RoutedEventArgs e) => OpenInBrowser(SiteUrl);
+
+    private void OnOpenPhpMyAdminClick(object sender, RoutedEventArgs e) =>
+        OpenInBrowser($"{SiteUrl}/phpmyadmin");
+
+    private void OnOpenWwwClick(object sender, RoutedEventArgs e)
+    {
+        var folder = AppPaths.WwwRoot;
+
+        // The folder may not exist yet if Apache has never been started.
+        Directory.CreateDirectory(folder);
+
+        Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
+    }
+
+    // A browser tab against a dead server only shows a confusing error page.
+    private void OpenInBrowser(string url)
+    {
+        if (!ServiceRuntime.Current.For(ServiceKind.Apache).IsRunning)
+        {
+            MessageBox.Show(
+                "Apache is not running. Start it from the dashboard first.",
+                "Apache is stopped",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
     }
 
     private void UpdateActivePhp()

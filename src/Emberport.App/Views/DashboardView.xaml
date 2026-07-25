@@ -65,6 +65,45 @@
 
             <ItemsControl x:Name="ServiceList" Margin="0,26,0,0" />
 
+            <Border Margin="0,14,0,0"
+                    Padding="20,18"
+                    CornerRadius="{StaticResource RadiusMd}"
+                    Background="{StaticResource SurfaceRaisedBrush}"
+                    BorderBrush="{StaticResource BorderSubtleBrush}"
+                    BorderThickness="1">
+                <StackPanel>
+
+                    <TextBlock Text="Quick links"
+                               FontSize="{StaticResource FontSizeHeading}"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+
+                    <TextBlock x:Name="SiteUrlText"
+                               Margin="0,7,0,0"
+                               FontFamily="{StaticResource MonoFontFamily}"
+                               FontSize="12"
+                               Foreground="{StaticResource TextTertiaryBrush}" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <Button Content="Open website"
+                                MinWidth="140"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Click="OnOpenSiteClick" />
+                        <Button Content="phpMyAdmin"
+                                MinWidth="140"
+                                Margin="10,0,0,0"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnOpenPhpMyAdminClick" />
+                        <Button Content="Open www folder"
+                                MinWidth="150"
+                                Margin="10,0,0,0"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnOpenWwwClick" />
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>
