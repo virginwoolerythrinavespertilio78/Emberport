@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Emberport.Controls;
+using Emberport.Models;
+using Emberport.Services;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
-using Emberport.Controls;
-using Emberport.Models;
-using Emberport.Services;
 
 namespace Emberport.Views;
 
@@ -132,7 +133,8 @@ public partial class DashboardView : UserControl
             case ServiceKind.MySql:
                 {
                     var configPath = MySqlConfigurator.EnsureConfigured(installation, MySqlConfigurator.DefaultPort);
-                    MySqlConfigurator.EnsureInitialized(installation, configPath);
+
+                    PrepareMySqlStorage(installation, configPath);
 
                     return new ProcessLaunchRequest
                     {
@@ -145,6 +147,47 @@ public partial class DashboardView : UserControl
             default:
                 return new ProcessLaunchRequest { ExecutablePath = installation.ExecutablePath };
         }
+    }
+
+    // The very first launch has to build the system tables, which blocks the UI.
+    private static void PrepareMySqlStorage(BinaryInstallation installation, string configPath)
+    {
+        if (MySqlConfigurator.IsInitialized())
+        {
+            MySqlConfigurator.EnsureInitialized(installation, configPath);
+            return;
+        }
+
+        MessageBox.Show(
+            """
+        MySQL needs to be prepared before it can run for the first time.
+
+        Emberport will now create the database storage in the data folder.
+        This happens only once and can take up to a minute.
+
+        The window may stop responding while this runs. That is expected,
+        please do not close Emberport until it finishes.
+        """,
+            "Preparing MySQL",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
+
+        Mouse.OverrideCursor = Cursors.Wait;
+
+        try
+        {
+            MySqlConfigurator.EnsureInitialized(installation, configPath);
+        }
+        finally
+        {
+            Mouse.OverrideCursor = null;
+        }
+
+        MessageBox.Show(
+            "MySQL storage is ready. The server is starting now.",
+            "Preparing MySQL",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
     }
 
     // Polling keeps the UI honest when a service dies on its own.
