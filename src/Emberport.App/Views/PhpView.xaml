@@ -6,9 +6,26 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="34,28,34,32">
         <StackPanel>
 
-            <TextBlock Text="PHP" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock Style="{StaticResource PageSubtitleStyle}"
-                       Text="Pick the version Apache runs with. Switching restarts Apache automatically." />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="PHP" Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock Style="{StaticResource PageSubtitleStyle}"
+                               Text="Pick the version Apache runs with. Switching restarts Apache automatically." />
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Content="Rescan"
+                        MinWidth="104"
+                        Margin="16,4,0,0"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource GhostButtonStyle}"
+                        Click="OnRescanClick" />
+            </Grid>
 
             <ItemsControl x:Name="VersionList" Margin="0,26,0,0">
                 <ItemsControl.ItemTemplate>
@@ -47,7 +64,6 @@
                                                    FontSize="{StaticResource FontSizeHeading}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{StaticResource TextPrimaryBrush}" />
-
                                         <Border Margin="10,0,0,0"
                                                 Padding="8,2"
                                                 VerticalAlignment="Center"
@@ -93,7 +109,7 @@
                 <TextBlock TextWrapping="Wrap"
                            FontSize="{StaticResource FontSizeBody}"
                            Foreground="{StaticResource TextSecondaryBrush}"
-                           Text="No PHP build was found. Drop an extracted x64 Thread Safe build into the bin\php folder and restart Emberport." />
+                           Text="No PHP build was found. Drop an extracted x64 Thread Safe build into the bin\php folder and press Rescan." />
             </Border>
 
             <Border Margin="0,26,0,0"
@@ -114,7 +130,8 @@
                                FontSize="{StaticResource FontSizeBody}"
                                Foreground="{StaticResource TextSecondaryBrush}">
                         Download the zip archive of any PHP release, extract the whole folder,
-                        and drop it into the folder below. Emberport picks it up on the next launch.
+                        and drop it into the folder below. The list refreshes every time you open
+                        this page, or you can press Rescan.
                         <LineBreak /><LineBreak />
                         The build must be
                         <Run FontWeight="SemiBold" Foreground="#F2F2F5">x64</Run> and

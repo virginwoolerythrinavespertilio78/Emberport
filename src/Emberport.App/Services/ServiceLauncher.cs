@@ -14,6 +14,15 @@ public static class ServiceLauncher
     public static void SetInstallations(IReadOnlyList<BinaryInstallation> installations) =>
         _installations = installations;
 
+    /// <summary>Re-reads the bin folder so added or removed builds are picked up.</summary>
+    public static IReadOnlyList<BinaryInstallation> Rescan()
+    {
+        IBinaryScanner scanner = new BinaryScanner();
+        _installations = scanner.Scan(AppPaths.BinariesRoot);
+
+        return _installations;
+    }
+
     public static BinaryInstallation? Find(ServiceKind kind) =>
         _installations.FirstOrDefault(installation => installation.Kind == kind);
 
