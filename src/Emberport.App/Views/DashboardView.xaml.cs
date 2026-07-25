@@ -121,6 +121,7 @@ public partial class DashboardView : UserControl
                         PhpConfigurator.EnsureConfigured(php);
                     }
 
+                    PhpMyAdminConfigurator.EnsureConfigured(MySqlConfigurator.DefaultPort);
                     var configPath = ApacheConfigurator.Prepare(installation, php, ApacheConfigurator.DefaultPort);
 
                     return new ProcessLaunchRequest

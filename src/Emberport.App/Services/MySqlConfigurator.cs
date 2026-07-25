@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Linq;
 using Emberport.Models;
 
 namespace Emberport.Services;
@@ -13,6 +14,7 @@ public static class MySqlConfigurator
 
     /// <summary>Kept outside the binaries folder so data survives a version switch.</summary>
     public static string DataDirectory => Path.Combine(AppPaths.DataRoot, "mysql");
+    public static string ErrorLogPath => Path.Combine(DataDirectory, "error.log");
 
     public static string ConfigFilePath => Path.Combine(AppPaths.ConfigRoot, "mysql", "my.ini");
 
@@ -28,10 +30,14 @@ public static class MySqlConfigurator
         builder.AppendLine("[mysqld]");
         builder.AppendLine($"basedir=\"{ToIniPath(mysql.DirectoryPath)}\"");
         builder.AppendLine($"datadir=\"{ToIniPath(DataDirectory)}\"");
+        builder.AppendLine($"log-error=\"{ToIniPath(ErrorLogPath)}\"");
+        builder.AppendLine("log-error-verbosity=3");
         builder.AppendLine($"port={port}");
         builder.AppendLine("character-set-server=utf8mb4");
         builder.AppendLine("collation-server=utf8mb4_general_ci");
-        builder.AppendLine("skip-name-resolve");
+        // Name resolution must stay on, otherwise a TCP client arriving from
+        // 127.0.0.1 never matches the root@localhost account.
+        builder.AppendLine("bind-address=127.0.0.1");
         builder.AppendLine("max_allowed_packet=128M");
         builder.AppendLine();
         builder.AppendLine("[client]");
@@ -43,16 +49,35 @@ public static class MySqlConfigurator
         return configPath;
     }
 
-    public static bool IsInitialized() =>
-        Directory.Exists(DataDirectory)
-        && Directory.EnumerateFileSystemEntries(DataDirectory).Any();
+    // A failed initialisation still leaves files behind, so presence alone is not enough.
+    private static readonly string[] RequiredEntries = ["ibdata1", "mysql", "sys"];
 
+    public static bool IsInitialized()
+    {
+        if (!Directory.Exists(DataDirectory))
+        {
+            return false;
+        }
+
+        return RequiredEntries.All(entry =>
+        {
+            var path = Path.Combine(DataDirectory, entry);
+            return File.Exists(path) || Directory.Exists(path);
+        });
+    }
     /// <summary>Runs mysqld --initialize-insecure once, creating a passwordless root user.</summary>
     public static void EnsureInitialized(BinaryInstallation mysql, string configPath)
     {
         if (IsInitialized())
         {
             return;
+        }
+
+        // mysqld refuses to initialise into a folder that already has content,
+        // so a partially written attempt has to be removed first.
+        if (Directory.Exists(DataDirectory))
+        {
+            Directory.Delete(DataDirectory, recursive: true);
         }
 
         Directory.CreateDirectory(DataDirectory);
