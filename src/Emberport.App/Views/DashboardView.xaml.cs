@@ -103,6 +103,12 @@ public partial class DashboardView : UserControl
 
         card.StartRequested += (_, _) =>
         {
+            if (!EnsurePortIsFree(kind))
+            {
+                card.Status = ServiceStatus.Stopped;
+                return;
+            }
+
             card.Status = ServiceStatus.Starting;
 
             try
@@ -124,6 +130,36 @@ public partial class DashboardView : UserControl
         };
 
         _monitored.Add(new MonitoredService(card, process));
+    }
+
+    private static int PortFor(ServiceKind kind) => kind switch
+    {
+        ServiceKind.Apache => AppSettings.Current.ApachePort,
+        ServiceKind.MySql => AppSettings.Current.MySqlPort,
+        ServiceKind.Redis => AppSettings.Current.RedisPort,
+        _ => 0,
+    };
+
+    // A busy port makes the service exit instantly, which looks like a silent failure.
+    private static bool EnsurePortIsFree(ServiceKind kind)
+    {
+        var port = PortFor(kind);
+
+        if (port == 0 || !PortInspector.IsInUse(port))
+        {
+            return true;
+        }
+
+        var owner = PortInspector.DescribeOwner(port) ?? "an unknown process";
+
+        MessageBox.Show(
+            $"Port {port} is already in use by {owner}.\n\n"
+            + $"Close that program, or change the {kind.ToDisplayName()} port, and try again.",
+            "Port is not available",
+            MessageBoxButton.OK,
+            MessageBoxImage.Warning);
+
+        return false;
     }
 
     private ProcessLaunchRequest CreateLaunchRequest(ServiceKind kind, BinaryInstallation installation)
