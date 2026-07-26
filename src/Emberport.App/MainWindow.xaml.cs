@@ -37,8 +37,7 @@ public partial class MainWindow : Window
             ["logs"] = () => Placeholder("\uE7C3", "Logs",
                 "Stream error and access logs from all services in one place."),
 
-            ["settings"] = () => Placeholder("\uE713", "Settings",
-                "Choose your projects folder, binaries folder and startup behaviour."),
+            ["settings"] = () => new SettingsView(),
 
             ["about"] = () => Placeholder("\uE946", "About",
                 "Emberport is built and maintained by Hojjat Jahanpour."),
