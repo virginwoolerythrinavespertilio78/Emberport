@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using Emberport.Services;
 using Emberport.Views;
 
 namespace Emberport;
@@ -67,8 +69,20 @@ public partial class MainWindow : Window
         PageHost.Content = view;
     }
 
+    // The overlay asks for support, so it only appears every few days.
     private void Welcome_Loaded(object sender, RoutedEventArgs e)
     {
+        if (sender is not UIElement overlay)
+        {
+            return;
+        }
 
+        if (!WelcomeSchedule.ShouldShow())
+        {
+            overlay.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        WelcomeSchedule.MarkShown();
     }
 }

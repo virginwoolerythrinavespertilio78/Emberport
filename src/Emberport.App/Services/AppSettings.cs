@@ -18,6 +18,9 @@ public sealed class AppSettings
     /// <summary>Absolute folder Apache serves from. Null means the bundled www folder.</summary>
     public string? DocumentRoot { get; set; }
 
+    /// <summary>When the support overlay was last shown. Null means never.</summary>
+    public DateTimeOffset? WelcomeShownAt { get; set; }
+
     public int ApachePort { get; set; } = 80;
 
     public int MySqlPort { get; set; } = 3306;
