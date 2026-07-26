@@ -1,0 +1,154 @@
+<UserControl x:Class="Emberport.Views.LogsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource UiFontFamily}">
+
+    <UserControl.Resources>
+        <Style x:Key="SourceChipStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0,0,9,0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Chip"
+                                Padding="15,9"
+                                CornerRadius="{StaticResource RadiusSm}"
+                                Background="#121215"
+                                BorderBrush="#33333C"
+                                BorderThickness="1">
+                            <ContentPresenter VerticalAlignment="Center"
+                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="#14FF6B1A" />
+                                <Setter TargetName="Chip" Property="BorderBrush" Value="#4DFF6B1A" />
+                                <Setter Property="Foreground" Value="#FF8340" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="IsChecked" Value="False" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Chip" Property="Background" Value="#1A1A1F" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="34,28,34,32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Logs" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock Style="{StaticResource PageSubtitleStyle}"
+                           Text="The tail of the Apache logs, refreshed while you watch." />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Margin="16,4,0,0"
+                        VerticalAlignment="Top">
+                <CheckBox x:Name="AutoRefreshToggle"
+                          Content="Auto refresh"
+                          IsChecked="True"
+                          Foreground="{StaticResource TextSecondaryBrush}"
+                          VerticalAlignment="Center"
+                          Margin="0,0,12,0"
+                          Checked="OnAutoRefreshChanged"
+                          Unchecked="OnAutoRefreshChanged" />
+                <Button Content="Refresh"
+                        MinWidth="104"
+                        Style="{StaticResource GhostButtonStyle}"
+                        Click="OnRefreshClick" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,24,0,0">
+            <RadioButton GroupName="LogSource"
+                         Style="{StaticResource SourceChipStyle}"
+                         Content="Apache errors"
+                         Tag="apache-error"
+                         IsChecked="True"
+                         Checked="OnSourceChecked" />
+            <RadioButton GroupName="LogSource"
+                         Style="{StaticResource SourceChipStyle}"
+                         Content="Apache access"
+                         Tag="apache-access"
+                         Checked="OnSourceChecked" />
+        </StackPanel>
+
+        <Grid Grid.Row="2" Margin="0,14,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Padding="13,10"
+                    CornerRadius="{StaticResource RadiusSm}"
+                    Background="#121215"
+                    BorderBrush="#33333C"
+                    BorderThickness="1">
+                <TextBlock x:Name="LogPathText"
+                           FontFamily="{StaticResource MonoFontFamily}"
+                           FontSize="12"
+                           TextTrimming="CharacterEllipsis"
+                           Foreground="#FF8340" />
+            </Border>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,0,0,0">
+                <Button Content="Open folder"
+                        MinWidth="118"
+                        Style="{StaticResource GhostButtonStyle}"
+                        Click="OnOpenFolderClick" />
+                <Button Content="Clear"
+                        MinWidth="90"
+                        Margin="9,0,0,0"
+                        Style="{StaticResource GhostButtonStyle}"
+                        Click="OnClearClick" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="3"
+                Margin="0,14,0,0"
+                CornerRadius="{StaticResource RadiusMd}"
+                Background="#0B0B0D"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="1">
+            <TextBox x:Name="LogBox"
+                     Margin="6"
+                     Padding="10"
+                     IsReadOnly="True"
+                     IsReadOnlyCaretVisible="False"
+                     AcceptsReturn="True"
+                     TextWrapping="NoWrap"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     Foreground="{StaticResource TextSecondaryBrush}"
+                     SelectionBrush="{StaticResource EmberBrush}"
+                     FontFamily="{StaticResource MonoFontFamily}"
+                     FontSize="12"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto" />
+        </Border>
+
+    </Grid>
+</UserControl>

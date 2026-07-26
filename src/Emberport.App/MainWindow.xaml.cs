@@ -34,8 +34,7 @@ public partial class MainWindow : Window
             ["sites"] = () => Placeholder("\uE8B7", "Sites",
                 "Every folder in your projects directory, served as its own .test domain."),
 
-            ["logs"] = () => Placeholder("\uE7C3", "Logs",
-                "Stream error and access logs from all services in one place."),
+            ["logs"] = () => new LogsView(),
 
             ["settings"] = () => new SettingsView(),
 
