@@ -24,11 +24,9 @@ public partial class MainWindow : Window
 
             ["apache"] = () => new ApacheView(),
 
-            ["mysql"] = () => Placeholder("\uE8F1", "MySQL",
-                "Switch between MySQL versions, manage the port and run backups."),
+            ["mysql"] = () => new MySqlView(),
 
-            ["redis"] = () => Placeholder("\uE945", "Redis",
-                "Control the Redis server and inspect its runtime output."),
+            ["redis"] = () => new RedisView(),
 
             ["php"] = () => new PhpView(),
 

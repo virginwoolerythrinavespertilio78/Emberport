@@ -1,0 +1,130 @@
+<UserControl x:Class="Emberport.Views.MySqlView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Emberport.Controls"
+             FontFamily="{StaticResource UiFontFamily}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="34,28,34,32">
+        <StackPanel>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="MySQL" Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock Style="{StaticResource PageSubtitleStyle}"
+                               Text="The database engine, its data folder and the build it runs on." />
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Content="Refresh"
+                        MinWidth="104"
+                        Margin="16,4,0,0"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource GhostButtonStyle}"
+                        Click="OnRefreshClick" />
+            </Grid>
+
+            <Border Margin="0,24,0,0"
+                    Padding="20,18"
+                    CornerRadius="{StaticResource RadiusMd}"
+                    Background="{StaticResource SurfaceRaisedBrush}"
+                    BorderBrush="{StaticResource BorderSubtleBrush}"
+                    BorderThickness="1">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="Server"
+                                   FontSize="{StaticResource FontSizeHeading}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+
+                        <Border Grid.Column="1"
+                                x:Name="StateBadge"
+                                Padding="10,5"
+                                CornerRadius="4"
+                                Background="#1FF87171">
+                            <TextBlock x:Name="StateText"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       Foreground="#F87171"
+                                       Text="STOPPED" />
+                        </Border>
+                    </Grid>
+
+                    <StackPanel Margin="0,14,0,0">
+                        <TextBlock Text="Version" FontSize="11" Foreground="{StaticResource TextTertiaryBrush}" />
+                        <TextBlock x:Name="VersionText"
+                                   Margin="0,3,0,0"
+                                   FontFamily="{StaticResource MonoFontFamily}"
+                                   FontSize="12"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+
+                        <TextBlock Text="Connection" Margin="0,12,0,0" FontSize="11" Foreground="{StaticResource TextTertiaryBrush}" />
+                        <TextBlock x:Name="ConnectionText"
+                                   Margin="0,3,0,0"
+                                   FontFamily="{StaticResource MonoFontFamily}"
+                                   FontSize="12"
+                                   Foreground="#FF8340" />
+
+                        <TextBlock Text="Data folder" Margin="0,12,0,0" FontSize="11" Foreground="{StaticResource TextTertiaryBrush}" />
+                        <TextBlock x:Name="DataText"
+                                   Margin="0,3,0,0"
+                                   FontFamily="{StaticResource MonoFontFamily}"
+                                   FontSize="12"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+
+                        <TextBlock Text="Configuration file" Margin="0,12,0,0" FontSize="11" Foreground="{StaticResource TextTertiaryBrush}" />
+                        <TextBlock x:Name="ConfigText"
+                                   Margin="0,3,0,0"
+                                   FontFamily="{StaticResource MonoFontFamily}"
+                                   FontSize="12"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                        <Button Content="Open phpMyAdmin"
+                                MinWidth="158"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Click="OnOpenPhpMyAdminClick" />
+                        <Button Content="Open my.ini"
+                                MinWidth="122"
+                                Margin="10,0,0,0"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnOpenConfigClick" />
+                        <Button Content="Open data folder"
+                                MinWidth="148"
+                                Margin="10,0,0,0"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnOpenDataClick" />
+                        <Button Content="Open error log"
+                                MinWidth="138"
+                                Margin="10,0,0,0"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnOpenLogClick" />
+                    </StackPanel>
+
+                    <TextBlock x:Name="StatusText"
+                               Margin="0,12,0,0"
+                               TextWrapping="Wrap"
+                               FontSize="12"
+                               Foreground="{StaticResource TextTertiaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <controls:VersionPicker Kind="MySql" Margin="0,14,0,0" />
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
