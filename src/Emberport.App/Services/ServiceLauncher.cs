@@ -23,8 +23,9 @@ public static class ServiceLauncher
         return _installations;
     }
 
+    // The selected build wins; otherwise the first detected one is used.
     public static BinaryInstallation? Find(ServiceKind kind) =>
-        _installations.FirstOrDefault(installation => installation.Kind == kind);
+        ServiceSelection.Current.Resolve(kind, Installations);
 
     public static IReadOnlyList<BinaryInstallation> PhpVersions() =>
         _installations

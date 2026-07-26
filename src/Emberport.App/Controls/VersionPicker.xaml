@@ -1,0 +1,246 @@
+<UserControl x:Class="Emberport.Controls.VersionPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource UiFontFamily}">
+
+    <StackPanel>
+
+        <Border Padding="20,18"
+                CornerRadius="{StaticResource RadiusMd}"
+                Background="{StaticResource SurfaceRaisedBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="1">
+            <StackPanel>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="HeaderText"
+                                   Text="Versions"
+                                   FontSize="{StaticResource FontSizeHeading}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock x:Name="Subtitle"
+                                   Margin="0,6,0,0"
+                                   TextWrapping="Wrap"
+                                   FontSize="{StaticResource FontSizeBody}"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,0,0,0">
+                        <Button x:Name="RestartButton"
+                                Content="Restart"
+                                MinWidth="104"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnRestartClick" />
+                        <Button Content="Rescan"
+                                MinWidth="104"
+                                Margin="9,0,0,0"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnRescanClick" />
+                    </StackPanel>
+                </Grid>
+
+                <ItemsControl x:Name="VersionList" Margin="0,16,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <RadioButton Grid.Column="0"
+                                             GroupName="EmberportVersionGroup"
+                                             IsChecked="{Binding IsActive, Mode=OneWay}"
+                                             Checked="OnVersionChecked"
+                                             Focusable="True">
+                                    <RadioButton.Template>
+                                        <ControlTemplate TargetType="RadioButton">
+                                            <Border x:Name="Shell"
+                                                    Padding="16,14"
+                                                    CornerRadius="{StaticResource RadiusSm}"
+                                                    Background="#121215"
+                                                    BorderBrush="#33333C"
+                                                    BorderThickness="1">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock x:Name="Tick"
+                                                               Grid.Column="0"
+                                                               Text="&#xE73E;"
+                                                               FontFamily="Segoe MDL2 Assets"
+                                                               FontSize="12"
+                                                               Margin="0,0,12,0"
+                                                               VerticalAlignment="Center"
+                                                               Visibility="Hidden"
+                                                               Foreground="#FF8340" />
+
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Version}"
+                                                                   FontSize="{StaticResource FontSizeHeading}"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                                        <TextBlock Text="{Binding Detail}"
+                                                                   Margin="0,4,0,0"
+                                                                   FontFamily="{StaticResource MonoFontFamily}"
+                                                                   FontSize="11"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   Foreground="{StaticResource TextTertiaryBrush}" />
+                                                    </StackPanel>
+
+                                                    <Border Grid.Column="2"
+                                                            Padding="8,3"
+                                                            VerticalAlignment="Center"
+                                                            CornerRadius="4"
+                                                            Background="#14FF6B1A"
+                                                            BorderBrush="#2EFF6B1A"
+                                                            BorderThickness="1"
+                                                            Visibility="{Binding ActiveBadge}">
+                                                        <TextBlock Text="ACTIVE"
+                                                                   FontSize="9"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="#FF8340" />
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Shell" Property="Background" Value="#1A1A1F" />
+                                                </Trigger>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter TargetName="Shell" Property="Background" Value="#14FF6B1A" />
+                                                    <Setter TargetName="Shell" Property="BorderBrush" Value="#4DFF6B1A" />
+                                                    <Setter TargetName="Tick" Property="Visibility" Value="Visible" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </RadioButton.Template>
+                                </RadioButton>
+
+                                <Button Grid.Column="1"
+                                        Content="Folder"
+                                        MinWidth="96"
+                                        Margin="9,0,0,0"
+                                        Style="{StaticResource GhostButtonStyle}"
+                                        Click="OnOpenFolderClick" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border x:Name="EmptyState"
+                        Visibility="Collapsed"
+                        Padding="14,12"
+                        CornerRadius="{StaticResource RadiusSm}"
+                        Background="#121215"
+                        BorderBrush="#33333C"
+                        BorderThickness="1">
+                    <TextBlock x:Name="EmptyText"
+                               TextWrapping="Wrap"
+                               FontSize="12"
+                               Foreground="{StaticResource TextSecondaryBrush}" />
+                </Border>
+
+                <TextBlock x:Name="StatusText"
+                           Margin="0,4,0,0"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           Foreground="{StaticResource TextTertiaryBrush}" />
+            </StackPanel>
+        </Border>
+
+        <Border Margin="0,14,0,0"
+                Padding="20,18"
+                CornerRadius="{StaticResource RadiusMd}"
+                Background="{StaticResource SurfaceRaisedBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="How switching works"
+                           FontSize="{StaticResource FontSizeHeading}"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" />
+
+                <TextBlock x:Name="RuleOne"
+                           Margin="0,10,0,0"
+                           TextWrapping="Wrap"
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}" />
+                <TextBlock x:Name="RuleTwo"
+                           Margin="0,8,0,0"
+                           TextWrapping="Wrap"
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}" />
+                <TextBlock x:Name="RuleThree"
+                           Margin="0,8,0,0"
+                           TextWrapping="Wrap"
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{StaticResource TextSecondaryBrush}" />
+            </StackPanel>
+        </Border>
+
+        <Border Margin="0,14,0,0"
+                Padding="20,18"
+                CornerRadius="{StaticResource RadiusMd}"
+                Background="{StaticResource SurfaceRaisedBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="1">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Add a build"
+                                   FontSize="{StaticResource FontSizeHeading}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock x:Name="AddHint"
+                                   Margin="0,6,0,0"
+                                   TextWrapping="Wrap"
+                                   FontSize="{StaticResource FontSizeBody}"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,0,0,0">
+                        <Button Content="Download"
+                                MinWidth="112"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Click="OnDownloadClick" />
+                        <Button Content="Open folder"
+                                MinWidth="118"
+                                Margin="9,0,0,0"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnOpenBinFolderClick" />
+                    </StackPanel>
+                </Grid>
+
+                <Border Margin="0,14,0,0"
+                        Padding="13,11"
+                        CornerRadius="{StaticResource RadiusSm}"
+                        Background="#121215"
+                        BorderBrush="#33333C"
+                        BorderThickness="1">
+                    <TextBlock x:Name="FolderHint"
+                               FontFamily="{StaticResource MonoFontFamily}"
+                               FontSize="12"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="#FF8340" />
+                </Border>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

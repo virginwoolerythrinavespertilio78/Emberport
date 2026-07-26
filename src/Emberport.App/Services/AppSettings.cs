@@ -15,6 +15,13 @@ public sealed class AppSettings
 
     public string? PhpVersion { get; set; }
 
+    /// <summary>Selected build versions. Null means "use whatever is detected".</summary>
+    public string? ApacheVersion { get; set; }
+
+    public string? MySqlVersion { get; set; }
+
+    public string? RedisVersion { get; set; }
+
     /// <summary>Absolute folder Apache serves from. Null means the bundled www folder.</summary>
     public string? DocumentRoot { get; set; }
 
