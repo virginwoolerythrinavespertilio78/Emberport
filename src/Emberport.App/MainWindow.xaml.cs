@@ -22,8 +22,7 @@ public partial class MainWindow : Window
         {
             ["dashboard"] = () => new DashboardView(),
 
-            ["apache"] = () => Placeholder("\uE774", "Apache",
-                "Configure the web server, manage ports and edit virtual hosts."),
+            ["apache"] = () => new ApacheView(),
 
             ["mysql"] = () => Placeholder("\uE8F1", "MySQL",
                 "Switch between MySQL versions, manage the port and run backups."),
