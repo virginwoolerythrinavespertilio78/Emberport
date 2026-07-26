@@ -32,6 +32,15 @@ public static class ServiceLauncher
             .OrderByDescending(installation => installation.Version)
             .ToList();
 
+    /// <summary>The port a service will bind to on its next start.</summary>
+    public static int PortFor(ServiceKind kind) => kind switch
+    {
+        ServiceKind.Apache => AppSettings.Current.ApachePort,
+        ServiceKind.MySql => AppSettings.Current.MySqlPort,
+        ServiceKind.Redis => AppSettings.Current.RedisPort,
+        _ => 0,
+    };
+
     public static ProcessLaunchRequest CreateLaunchRequest(ServiceKind kind, BinaryInstallation installation)
     {
         switch (kind)
@@ -45,9 +54,9 @@ public static class ServiceLauncher
                         PhpConfigurator.EnsureConfigured(php);
                     }
 
-                    PhpMyAdminConfigurator.EnsureConfigured(MySqlConfigurator.DefaultPort);
+                    PhpMyAdminConfigurator.EnsureConfigured(PortFor(ServiceKind.MySql));
 
-                    var configPath = ApacheConfigurator.Prepare(installation, php, ApacheConfigurator.DefaultPort);
+                    var configPath = ApacheConfigurator.Prepare(installation, php, PortFor(ServiceKind.Apache));
 
                     return new ProcessLaunchRequest
                     {
@@ -58,13 +67,24 @@ public static class ServiceLauncher
 
             case ServiceKind.MySql:
                 {
-                    var configPath = MySqlConfigurator.EnsureConfigured(installation, MySqlConfigurator.DefaultPort);
+                    var configPath = MySqlConfigurator.EnsureConfigured(installation, PortFor(ServiceKind.MySql));
                     MySqlConfigurator.EnsureInitialized(installation, configPath);
 
                     return new ProcessLaunchRequest
                     {
                         ExecutablePath = installation.ExecutablePath,
                         Arguments = $"--defaults-file=\"{configPath}\" --console",
+                        WorkingDirectory = installation.DirectoryPath,
+                    };
+                }
+
+            case ServiceKind.Redis:
+                {
+                    // Redis has no config file here, so the port is passed on the command line.
+                    return new ProcessLaunchRequest
+                    {
+                        ExecutablePath = installation.ExecutablePath,
+                        Arguments = $"--port {PortFor(ServiceKind.Redis)}",
                         WorkingDirectory = installation.DirectoryPath,
                     };
                 }

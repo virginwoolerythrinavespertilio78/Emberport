@@ -132,18 +132,10 @@ public partial class DashboardView : UserControl
         _monitored.Add(new MonitoredService(card, process));
     }
 
-    private static int PortFor(ServiceKind kind) => kind switch
-    {
-        ServiceKind.Apache => AppSettings.Current.ApachePort,
-        ServiceKind.MySql => AppSettings.Current.MySqlPort,
-        ServiceKind.Redis => AppSettings.Current.RedisPort,
-        _ => 0,
-    };
-
     // A busy port makes the service exit instantly, which looks like a silent failure.
     private static bool EnsurePortIsFree(ServiceKind kind)
     {
-        var port = PortFor(kind);
+        var port = ServiceLauncher.PortFor(kind);
 
         if (port == 0 || !PortInspector.IsInUse(port))
         {
