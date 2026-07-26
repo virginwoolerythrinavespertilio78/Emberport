@@ -15,6 +15,9 @@ public sealed class AppSettings
 
     public string? PhpVersion { get; set; }
 
+    /// <summary>Absolute folder Apache serves from. Null means the bundled www folder.</summary>
+    public string? DocumentRoot { get; set; }
+
     public int ApachePort { get; set; } = 80;
 
     public int MySqlPort { get; set; } = 3306;

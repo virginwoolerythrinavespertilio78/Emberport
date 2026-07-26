@@ -5,6 +5,13 @@ namespace Emberport;
 
 public partial class App : Application
 {
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+
+        WorkspaceSeeder.Seed();
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
         // Never leave a server running after the window is gone.

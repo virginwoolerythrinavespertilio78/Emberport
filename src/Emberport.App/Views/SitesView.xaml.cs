@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Emberport.Models;
 using Emberport.Services;
+using Microsoft.Win32;
 
 namespace Emberport.Views;
 
@@ -26,7 +27,25 @@ public partial class SitesView : UserControl
 
     private void Reload()
     {
-        Directory.CreateDirectory(AppPaths.WwwRoot);
+        var root = AppPaths.WwwRoot;
+        var isDefault = string.IsNullOrWhiteSpace(AppSettings.Current.DocumentRoot);
+
+        RootPathText.Text = root;
+        ResetRootButton.IsEnabled = !isDefault;
+
+        var missing = !Directory.Exists(root);
+
+        RootWarning.Visibility = missing ? Visibility.Visible : Visibility.Collapsed;
+        RootWarning.Text = missing
+            ? "This folder no longer exists. Apache will refuse to start until you pick another one."
+            : string.Empty;
+
+        if (isDefault && missing)
+        {
+            // The bundled folder is ours to recreate; a custom one is not.
+            Directory.CreateDirectory(root);
+            RootWarning.Visibility = Visibility.Collapsed;
+        }
 
         var items = new List<SiteItem>();
 
@@ -37,6 +56,75 @@ public partial class SitesView : UserControl
 
         SiteList.ItemsSource = items;
         EmptyState.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnChangeRootClick(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFolderDialog
+        {
+            Title = "Choose the folder Apache should serve",
+            InitialDirectory = Directory.Exists(AppPaths.WwwRoot) ? AppPaths.WwwRoot : AppPaths.WorkspaceRoot,
+            Multiselect = false,
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        ApplyRoot(dialog.FolderName);
+    }
+
+    private void OnResetRootClick(object sender, RoutedEventArgs e) => ApplyRoot(null);
+
+    private void ApplyRoot(string? path)
+    {
+        if (path is not null)
+        {
+            if (!Directory.Exists(path))
+            {
+                RootStatus.Text = "That folder does not exist.";
+                return;
+            }
+
+            // Storing null keeps the setting portable when the default is chosen.
+            if (string.Equals(
+                    Path.TrimEndingDirectorySeparator(path),
+                    Path.TrimEndingDirectorySeparator(AppPaths.DefaultWwwRoot),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                path = null;
+            }
+        }
+
+        AppSettings.Current.DocumentRoot = path;
+        AppSettings.Save();
+
+        var restarted = false;
+
+        try
+        {
+            // Apache reads the document root at boot, so the change needs a restart.
+            if (ServiceRuntime.Current.For(ServiceKind.Apache).IsRunning)
+            {
+                ServiceLauncher.RestartIfRunning(ServiceKind.Apache);
+                restarted = true;
+            }
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(
+                exception.Message,
+                "Could not restart Apache",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+
+        RootStatus.Text = restarted
+            ? "Server root updated and Apache restarted."
+            : "Server root updated. Start Apache to serve from it.";
+
+        Reload();
     }
 
     private void OnNameKeyDown(object sender, KeyEventArgs e)
@@ -57,6 +145,12 @@ public partial class SitesView : UserControl
             return;
         }
 
+        if (!Directory.Exists(AppPaths.WwwRoot))
+        {
+            CreateStatus.Text = "Pick a valid server root first.";
+            return;
+        }
+
         try
         {
             var site = SiteScanner.Create(typed);
@@ -74,9 +168,15 @@ public partial class SitesView : UserControl
 
     private void OnOpenRootClick(object sender, RoutedEventArgs e)
     {
-        Directory.CreateDirectory(AppPaths.WwwRoot);
+        var root = AppPaths.WwwRoot;
 
-        Process.Start(new ProcessStartInfo(AppPaths.WwwRoot) { UseShellExecute = true });
+        if (!Directory.Exists(root))
+        {
+            RootStatus.Text = "That folder does not exist any more.";
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo(root) { UseShellExecute = true });
     }
 
     private void OnOpenSiteFolderClick(object sender, RoutedEventArgs e)

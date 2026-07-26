@@ -16,7 +16,19 @@ public static class AppPaths
 
     public static string ToolsRoot => Path.Combine(WorkspaceRoot, "tools");
 
-    public static string WwwRoot => Path.Combine(WorkspaceRoot, "www");
+    /// <summary>The folder shipped with Emberport, used when no custom root is set.</summary>
+    public static string DefaultWwwRoot => Path.Combine(WorkspaceRoot, "www");
+
+    // A custom root lets projects live on any drive, the way Laragon allows.
+    public static string WwwRoot
+    {
+        get
+        {
+            var configured = AppSettings.Current.DocumentRoot;
+
+            return string.IsNullOrWhiteSpace(configured) ? DefaultWwwRoot : configured;
+        }
+    }
 
     public static string DataRoot => Path.Combine(WorkspaceRoot, "data");
 
