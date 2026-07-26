@@ -11,6 +11,8 @@ namespace Emberport.Views;
 
 public partial class PhpView : UserControl
 {
+    private bool _isLoadingExtensions;
+
     public PhpView()
     {
         InitializeComponent();
@@ -50,6 +52,96 @@ public partial class PhpView : UserControl
         VersionList.ItemsSource = items;
         EmptyState.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         PhpFolderPath.Text = AppPaths.PhpRoot;
+
+        LoadExtensions(active);
+    }
+
+    private void LoadExtensions(BinaryInstallation? active)
+    {
+        _isLoadingExtensions = true;
+
+        try
+        {
+            if (active is null)
+            {
+                ExtensionList.ItemsSource = null;
+                ExtensionSubtitle.Text = "Select a PHP version first.";
+
+                return;
+            }
+
+            var iniPath = IniPathFor(active);
+            var extensions = PhpIniEditor.Read(iniPath);
+
+            ExtensionList.ItemsSource = extensions;
+
+            ExtensionSubtitle.Text = extensions.Count == 0
+                ? $"No extension lines were found in {iniPath}. Start Apache once so Emberport can create the file."
+                : $"Editing php.ini of PHP {active.Version}. Apache must be restarted for changes to take effect.";
+
+            ExtensionStatus.Text = string.Empty;
+        }
+        finally
+        {
+            _isLoadingExtensions = false;
+        }
+    }
+
+    private void OnExtensionToggled(object sender, RoutedEventArgs e)
+    {
+        // Populating the list raises Checked for every enabled item.
+        if (_isLoadingExtensions || sender is not CheckBox { DataContext: PhpExtension extension } box)
+        {
+            return;
+        }
+
+        var active = PhpSelection.Current.Resolve(ServiceLauncher.Installations);
+
+        if (active is null)
+        {
+            return;
+        }
+
+        var enabled = box.IsChecked == true;
+
+        try
+        {
+            PhpIniEditor.SetEnabled(IniPathFor(active), extension.Name, enabled);
+
+            ExtensionStatus.Text = enabled
+                ? $"{extension.Name} enabled · restart Apache to apply."
+                : $"{extension.Name} disabled · restart Apache to apply.";
+        }
+        catch (Exception exception)
+        {
+            box.IsChecked = !enabled;
+
+            MessageBox.Show(
+                exception.Message,
+                "Could not update php.ini",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
+    private void OnRestartApacheClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            ServiceLauncher.RestartIfRunning(ServiceKind.Apache);
+
+            ExtensionStatus.Text = ServiceRuntime.Current.For(ServiceKind.Apache).IsRunning
+                ? "Apache restarted with the current php.ini."
+                : "Apache is not running, so nothing to restart.";
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(
+                exception.Message,
+                "Could not restart Apache",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 
     private void OnUseVersionClick(object sender, RoutedEventArgs e)
@@ -119,6 +211,9 @@ public partial class PhpView : UserControl
         {
             UseShellExecute = true,
         });
+
+    private static string IniPathFor(BinaryInstallation installation) =>
+        Path.Combine(installation.DirectoryPath, "php.ini");
 
     // Rescanning creates new objects, so identity has to come from the path.
     private static bool SamePath(BinaryInstallation left, BinaryInstallation right) =>

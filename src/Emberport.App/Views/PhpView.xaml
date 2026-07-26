@@ -3,6 +3,60 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="{StaticResource UiFontFamily}">
 
+    <UserControl.Resources>
+        <Style x:Key="ExtensionChipStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0,0,9,9" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border x:Name="Chip"
+                                Padding="11,8"
+                                CornerRadius="{StaticResource RadiusSm}"
+                                Background="#121215"
+                                BorderBrush="#33333C"
+                                BorderThickness="1">
+                            <StackPanel Orientation="Horizontal">
+                                <Border x:Name="Box"
+                                        Width="16" Height="16"
+                                        CornerRadius="3"
+                                        Background="Transparent"
+                                        BorderBrush="#4A4A55"
+                                        BorderThickness="1">
+                                    <TextBlock x:Name="Tick"
+                                               Text="&#xE73E;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="9"
+                                               Foreground="#0E0E10"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Visibility="Collapsed" />
+                                </Border>
+                                <ContentPresenter Margin="9,0,0,0"
+                                                  VerticalAlignment="Center"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Box" Property="Background" Value="{StaticResource EmberBrush}" />
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource EmberBrush}" />
+                                <Setter TargetName="Tick" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="Chip" Property="BorderBrush" Value="#4DFF6B1A" />
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="#1A1A1F" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="34,28,34,32">
         <StackPanel>
 
@@ -66,9 +120,9 @@
                                                    Foreground="{StaticResource TextPrimaryBrush}" />
 
                                         <Border Margin="10,0,0,0"
-                                                Padding="8,2"
+                                                Padding="8,3"
                                                 VerticalAlignment="Center"
-                                                CornerRadius="{StaticResource RadiusPill}"
+                                                CornerRadius="4"
                                                 Background="#1F3DD68C"
                                                 Visibility="{Binding ActiveBadge}">
                                             <TextBlock Text="ACTIVE"
@@ -78,9 +132,9 @@
                                         </Border>
 
                                         <Border Margin="8,0,0,0"
-                                                Padding="8,2"
+                                                Padding="8,3"
                                                 VerticalAlignment="Center"
-                                                CornerRadius="{StaticResource RadiusPill}"
+                                                CornerRadius="4"
                                                 Background="#1FF87171"
                                                 Visibility="{Binding IncompatibleBadge}">
                                             <TextBlock Text="NTS · NOT SUPPORTED"
@@ -125,7 +179,68 @@
                            Text="No PHP build was found. Drop an extracted x64 Thread Safe build into the bin\php folder and press Rescan." />
             </Border>
 
-            <Border Margin="0,26,0,0"
+            <Border Margin="0,14,0,0"
+                    Padding="20,18"
+                    CornerRadius="{StaticResource RadiusMd}"
+                    Background="{StaticResource SurfaceRaisedBrush}"
+                    BorderBrush="{StaticResource BorderSubtleBrush}"
+                    BorderThickness="1">
+                <StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Extensions"
+                                       FontSize="{StaticResource FontSizeHeading}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock x:Name="ExtensionSubtitle"
+                                       Margin="0,7,0,0"
+                                       TextWrapping="Wrap"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Content="Restart Apache"
+                                MinWidth="140"
+                                Margin="16,0,0,0"
+                                VerticalAlignment="Top"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="OnRestartApacheClick" />
+                    </Grid>
+
+                    <ItemsControl x:Name="ExtensionList" Margin="0,16,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Style="{StaticResource ExtensionChipStyle}"
+                                          Content="{Binding Name}"
+                                          IsChecked="{Binding IsEnabled, Mode=OneWay}"
+                                          Checked="OnExtensionToggled"
+                                          Unchecked="OnExtensionToggled" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock x:Name="ExtensionStatus"
+                               Margin="0,6,0,0"
+                               TextWrapping="Wrap"
+                               FontSize="12"
+                               Foreground="{StaticResource TextTertiaryBrush}" />
+
+                </StackPanel>
+            </Border>
+
+            <Border Margin="0,14,0,0"
                     Padding="20,18"
                     CornerRadius="{StaticResource RadiusMd}"
                     Background="{StaticResource SurfaceRaisedBrush}"
