@@ -31,8 +31,7 @@ public partial class MainWindow : Window
 
             ["php"] = () => new PhpView(),
 
-            ["sites"] = () => Placeholder("\uE8B7", "Sites",
-                "Every folder in your projects directory, served as its own .test domain."),
+            ["sites"] = () => new SitesView(),
 
             ["logs"] = () => new LogsView(),
 
