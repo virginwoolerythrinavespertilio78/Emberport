@@ -53,6 +53,8 @@ public static class PhpConfigurator
         AppendOverrides(lines, php);
 
         File.WriteAllLines(iniPath, lines);
+        // Extensions have a single owner, so seed once and heal older duplicates.
+        PhpIniEditor.EnsureDefaults(iniPath);
     }
 
     // PHP keeps the last value it reads, so appending always wins over the template.
@@ -67,11 +69,6 @@ public static class PhpConfigurator
         lines.Add($"extension_dir = \"{extensionDir}\"");
         lines.Add(string.Empty);
 
-        foreach (var extension in DefaultExtensions)
-        {
-            lines.Add($"extension={extension}");
-        }
-
         lines.Add(string.Empty);
         lines.Add("date.timezone = UTC");
         lines.Add("memory_limit = 512M");
@@ -80,5 +77,6 @@ public static class PhpConfigurator
         lines.Add("post_max_size = 128M");
         lines.Add("display_errors = On");
         lines.Add("error_reporting = E_ALL");
+
     }
 }
