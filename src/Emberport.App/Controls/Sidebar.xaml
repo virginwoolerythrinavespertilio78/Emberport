@@ -63,7 +63,7 @@
                     <RadioButton
                         x:Uid="sites"
                         Checked="OnNavItemChecked"
-                        Content="Sites"
+                        Content="Web Root"
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE8B7;" />
                     <RadioButton

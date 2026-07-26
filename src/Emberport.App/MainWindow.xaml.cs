@@ -31,7 +31,7 @@ public partial class MainWindow : Window
 
             ["php"] = () => new PhpView(),
 
-            ["sites"] = () => new SitesView(),
+            ["sites"] = () => new WebRootView(),
 
             ["logs"] = () => new LogsView(),
 
