@@ -18,8 +18,14 @@ public partial class WebRootView : UserControl
         Loaded += OnLoaded;
     }
 
-    // The page is cached, so the path is re-read every time it appears.
+    // The page is cached, so the path and the binaries are re-read every visit.
     private void OnLoaded(object sender, RoutedEventArgs e) => Reload();
+
+    private void OnRescanClick(object sender, RoutedEventArgs e)
+    {
+        ServiceLauncher.Rescan();
+        Reload();
+    }
 
     private void Reload()
     {
@@ -43,6 +49,28 @@ public partial class WebRootView : UserControl
         RootWarning.Text = missing
             ? "This folder no longer exists. Apache will refuse to start until you pick another one."
             : string.Empty;
+
+        var entries = TerminalLauncher.Entries();
+
+        PathList.ItemsSource = entries;
+        PathEmpty.Visibility = entries.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnOpenTerminalClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            TerminalLauncher.Open(AppPaths.WwwRoot);
+            RootStatus.Text = "Terminal opened in the web root.";
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(
+                exception.Message,
+                "Could not open the terminal",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
     }
 
     private void OnChangeRootClick(object sender, RoutedEventArgs e)
