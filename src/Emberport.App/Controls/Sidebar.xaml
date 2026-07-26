@@ -67,6 +67,12 @@
                         Style="{StaticResource NavItemStyle}"
                         Tag="&#xE8B7;" />
                     <RadioButton
+                        x:Uid="terminal"
+                        Checked="OnNavItemChecked"
+                        Content="Terminal"
+                        Style="{StaticResource NavItemStyle}"
+                        Tag="&#xE756;" />
+                    <RadioButton
                         x:Uid="logs"
                         Checked="OnNavItemChecked"
                         Content="Logs"

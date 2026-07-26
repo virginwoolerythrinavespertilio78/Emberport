@@ -35,6 +35,8 @@ public partial class MainWindow : Window
 
             ["sites"] = () => new WebRootView(),
 
+            ["terminal"] = () => new TerminalView(),
+
             ["logs"] = () => new LogsView(),
 
             ["settings"] = () => new SettingsView(),
