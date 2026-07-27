@@ -27,20 +27,21 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
-                            Width="52"
-                            Height="52"
+                            Width="64"
+                            Height="64"
+                            Padding="8"
                             VerticalAlignment="Top"
                             CornerRadius="{StaticResource RadiusMd}"
-                            Background="{StaticResource EmberGradientBrush}">
-                        <TextBlock Text="&#xE945;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="24"
-                                   Foreground="#0E0E10"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
+                            Background="#121215"
+                            BorderBrush="#33333C"
+                            BorderThickness="1">
+                        <Image x:Name="LogoImage"
+                               Source="/Assets/logo.png"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
                     </Border>
 
-                    <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                    <StackPanel Grid.Column="1" Margin="16,2,0,0">
                         <TextBlock Text="Emberport"
                                    FontSize="{StaticResource FontSizeTitle}"
                                    FontWeight="SemiBold"
