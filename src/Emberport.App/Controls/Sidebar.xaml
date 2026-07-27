@@ -2,6 +2,7 @@
     x:Class="Emberport.Controls.Sidebar"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:services="clr-namespace:Emberport.Services"
     Width="240">
 
     <Border
@@ -102,16 +103,19 @@
                 Padding="18,12"
                 BorderBrush="{StaticResource BorderSubtleBrush}"
                 BorderThickness="0,1,0,0">
-                <StackPanel>
+                <!-- Version and author come from the assembly, so the csproj is the only place to change them. -->
+                <StackPanel ToolTip="{x:Static services:AppInfo.Signature}">
                     <TextBlock
                         FontSize="{StaticResource FontSizeCaption}"
-                        Foreground="{StaticResource TextTertiaryBrush}"
-                        Text="Emberport v0.4.0" />
+                        Foreground="{StaticResource TextTertiaryBrush}">
+                        <Run Text="{x:Static services:AppInfo.Name}" /><Run Text=" " /><Run Text="{x:Static services:AppInfo.DisplayVersion}" />
+                    </TextBlock>
                     <TextBlock
                         Margin="0,2,0,0"
                         FontSize="{StaticResource FontSizeCaption}"
-                        Foreground="{StaticResource TextTertiaryBrush}"
-                        Text="by Hojjat Jahanpour" />
+                        Foreground="{StaticResource TextTertiaryBrush}">
+                        <Run Text="by " /><Run Text="{x:Static services:AppInfo.Author}" />
+                    </TextBlock>
                 </StackPanel>
             </Border>
         </Grid>
