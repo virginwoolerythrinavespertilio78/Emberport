@@ -28,13 +28,17 @@
                                Foreground="{StaticResource TextSecondaryBrush}" />
                 </StackPanel>
 
-                <Button Grid.Column="1"
-                        Content="Run checks"
-                        MinWidth="120"
-                        Margin="16,0,0,0"
-                        VerticalAlignment="Top"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Click="OnRunClick" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,0,0,0">
+                    <Button Content="Run checks"
+                            MinWidth="120"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Click="OnRunClick" />
+                    <Button Content="Clean up"
+                            MinWidth="112"
+                            Margin="9,0,0,0"
+                            Style="{StaticResource GhostButtonStyle}"
+                            Click="OnCleanUpClick" />
+                </StackPanel>
             </Grid>
 
             <ItemsControl x:Name="FindingList" Margin="0,16,0,0">

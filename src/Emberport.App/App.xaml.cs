@@ -10,6 +10,8 @@ public partial class App : Application
         base.OnStartup(e);
 
         WorkspaceSeeder.Seed();
+        // A previous run may have been killed before OnExit could stop the servers.
+        OrphanReaper.Sweep();
     }
 
     protected override void OnExit(ExitEventArgs e)
