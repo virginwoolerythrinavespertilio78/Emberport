@@ -49,6 +49,8 @@ public sealed class ManagedProcess : IDisposable
                 return;
             }
 
+            Release();
+
             if (!File.Exists(request.ExecutablePath))
             {
                 throw new FileNotFoundException("Executable was not found.", request.ExecutablePath);
@@ -72,6 +74,10 @@ public sealed class ManagedProcess : IDisposable
             process.ErrorDataReceived += (_, args) => Publish(args.Data);
 
             process.Start();
+
+            // Windows kills the job when Emberport ends, so a crash cannot leave a server behind.
+            ProcessJob.Current.Assign(process);
+
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
@@ -97,7 +103,9 @@ public sealed class ManagedProcess : IDisposable
                 {
                     // Apache and MySQL spawn children, so the whole tree has to go.
                     process.Kill(entireProcessTree: true);
-                    process.WaitForExit(5000);
+
+                    // MySQL flushes its data on the way out, which can take a few seconds.
+                    process.WaitForExit(10000);
                 }
             }
             catch (Exception exception) when (exception is InvalidOperationException or SystemException)
@@ -112,6 +120,26 @@ public sealed class ManagedProcess : IDisposable
     }
 
     public void Dispose() => Stop();
+
+    /// <summary>Drops a process object that has already exited.</summary>
+    private void Release()
+    {
+        if (_process is null)
+        {
+            return;
+        }
+
+        try
+        {
+            _process.Dispose();
+        }
+        catch (InvalidOperationException)
+        {
+            // Nothing to release.
+        }
+
+        _process = null;
+    }
 
     private void Publish(string? line)
     {
