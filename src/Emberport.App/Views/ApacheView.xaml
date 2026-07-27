@@ -125,6 +125,8 @@
 
             <controls:VersionPicker Kind="Apache" Margin="0,14,0,0" />
 
+            <controls:ServiceHealthCard Kind="Apache" Margin="0,14,0,0" />
+
             <Border Margin="0,14,0,0"
                     Padding="20,18"
                     CornerRadius="{StaticResource RadiusMd}"
