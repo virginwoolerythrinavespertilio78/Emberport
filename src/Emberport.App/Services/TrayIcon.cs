@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using Emberport.Controls;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
@@ -10,7 +10,7 @@ namespace Emberport.Services;
 
 /// <summary>
 /// Keeps Emberport alive in the notification area. Closing or minimising the window
-/// hides it instead of shutting the servers down.
+/// hides it instead of shutting the servers down. The menu itself is a WPF window.
 /// </summary>
 public sealed class TrayIcon : IDisposable
 {
@@ -42,13 +42,21 @@ public sealed class TrayIcon : IDisposable
             Icon = LoadIcon(),
             Text = AppInfo.Signature,
             Visible = true,
-            ContextMenuStrip = BuildMenu(),
         };
 
-        _icon.DoubleClick += (_, _) => ShowWindow();
+        _icon.MouseUp += OnIconMouseUp;
+        _icon.DoubleClick += (_, _) => ShowMainWindow();
 
         window.Closing += OnWindowClosing;
         window.StateChanged += OnWindowStateChanged;
+    }
+
+    private void OnIconMouseUp(object? sender, Forms.MouseEventArgs e)
+    {
+        if (e.Button == Forms.MouseButtons.Right)
+        {
+            TrayMenu.Toggle();
+        }
     }
 
     private static Drawing.Icon LoadIcon()
@@ -71,33 +79,6 @@ public sealed class TrayIcon : IDisposable
         }
 
         return Drawing.SystemIcons.Application;
-    }
-
-    private Forms.ContextMenuStrip BuildMenu()
-    {
-        var menu = new Forms.ContextMenuStrip
-        {
-            ShowImageMargin = false,
-            BackColor = Drawing.Color.FromArgb(0x16, 0x16, 0x1A),
-            ForeColor = Drawing.Color.FromArgb(0xF2, 0xF2, 0xF5),
-            Font = new Drawing.Font("Segoe UI", 9f),
-            Renderer = new Forms.ToolStripProfessionalRenderer(new DarkColors()),
-        };
-
-        var open = new Forms.ToolStripMenuItem("Open Emberport", null, (_, _) => ShowWindow())
-        {
-            Font = new Drawing.Font("Segoe UI", 9f, Drawing.FontStyle.Bold),
-        };
-
-        menu.Items.Add(open);
-        menu.Items.Add(new Forms.ToolStripSeparator());
-        menu.Items.Add(new Forms.ToolStripMenuItem("Open localhost", null, (_, _) => OpenUrl($"http://localhost:{AppSettings.Current.ApachePort}")));
-        menu.Items.Add(new Forms.ToolStripMenuItem("Open phpMyAdmin", null, (_, _) => OpenUrl($"http://localhost:{AppSettings.Current.ApachePort}/phpmyadmin")));
-        menu.Items.Add(new Forms.ToolStripMenuItem("Open web root", null, (_, _) => OpenFolder(AppPaths.WwwRoot)));
-        menu.Items.Add(new Forms.ToolStripSeparator());
-        menu.Items.Add(new Forms.ToolStripMenuItem("Exit Emberport", null, (_, _) => Exit()));
-
-        return menu;
     }
 
     private void OnWindowClosing(object? sender, CancelEventArgs e)
@@ -138,7 +119,8 @@ public sealed class TrayIcon : IDisposable
         _icon.ShowBalloonTip(4000);
     }
 
-    private void ShowWindow()
+    /// <summary>Brings the main window back from the notification area.</summary>
+    public void ShowMainWindow()
     {
         if (_window is null)
         {
@@ -152,7 +134,7 @@ public sealed class TrayIcon : IDisposable
     }
 
     /// <summary>Really quits, which lets App.OnExit stop every server.</summary>
-    private void Exit()
+    public void RequestExit()
     {
         _exiting = true;
 
@@ -164,31 +146,6 @@ public sealed class TrayIcon : IDisposable
         Application.Current?.Shutdown();
     }
 
-    private static void OpenUrl(string url)
-    {
-        Start(new ProcessStartInfo(url) { UseShellExecute = true });
-    }
-
-    private static void OpenFolder(string path)
-    {
-        if (Directory.Exists(path))
-        {
-            Start(new ProcessStartInfo("explorer.exe", $"\"{path}\""));
-        }
-    }
-
-    private static void Start(ProcessStartInfo info)
-    {
-        try
-        {
-            Process.Start(info);
-        }
-        catch (Exception exception) when (exception is Win32Exception or InvalidOperationException or IOException)
-        {
-            // Nothing useful can be shown from the tray, so the click is ignored.
-        }
-    }
-
     public void Dispose()
     {
         if (_window is not null)
@@ -198,29 +155,11 @@ public sealed class TrayIcon : IDisposable
             _window = null;
         }
 
-        _icon?.Dispose();
-        _icon = null;
-    }
-
-    /// <summary>Dark palette so the tray menu matches the application.</summary>
-    private sealed class DarkColors : Forms.ProfessionalColorTable
-    {
-        private static readonly Drawing.Color Surface = Drawing.Color.FromArgb(0x16, 0x16, 0x1A);
-        private static readonly Drawing.Color Hover = Drawing.Color.FromArgb(0x26, 0x26, 0x2D);
-        private static readonly Drawing.Color Line = Drawing.Color.FromArgb(0x33, 0x33, 0x3C);
-
-        public override Drawing.Color ToolStripDropDownBackground => Surface;
-        public override Drawing.Color MenuBorder => Line;
-        public override Drawing.Color MenuItemBorder => Line;
-        public override Drawing.Color MenuItemSelected => Hover;
-        public override Drawing.Color MenuItemSelectedGradientBegin => Hover;
-        public override Drawing.Color MenuItemSelectedGradientEnd => Hover;
-        public override Drawing.Color MenuItemPressedGradientBegin => Hover;
-        public override Drawing.Color MenuItemPressedGradientEnd => Hover;
-        public override Drawing.Color ImageMarginGradientBegin => Surface;
-        public override Drawing.Color ImageMarginGradientMiddle => Surface;
-        public override Drawing.Color ImageMarginGradientEnd => Surface;
-        public override Drawing.Color SeparatorDark => Line;
-        public override Drawing.Color SeparatorLight => Line;
+        if (_icon is not null)
+        {
+            _icon.MouseUp -= OnIconMouseUp;
+            _icon.Dispose();
+            _icon = null;
+        }
     }
 }
