@@ -4,6 +4,10 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
+		<!-- Needed only for the notification area icon, which WPF does not provide. -->
+		<UseWindowsForms>true</UseWindowsForms>
+		<!-- Without this, WinForms and WPF types such as UserControl and Brush clash everywhere. -->
+		<DisableImplicitNamespaceImports_WindowsForms>true</DisableImplicitNamespaceImports_WindowsForms>
 		<AssemblyName>Emberport</AssemblyName>
 		<RootNamespace>Emberport</RootNamespace>
 		<Nullable>enable</Nullable>
@@ -23,12 +27,16 @@
 		<Description>A modern local development environment for Windows: Apache, PHP, MySQL and Redis with one click.</Description>
 	</PropertyGroup>
 
-	<!-- The executable icon. Windows also uses it for the taskbar, Alt+Tab and the window. -->
 	<PropertyGroup Condition="Exists('Assets\logo.ico')">
 		<ApplicationIcon>Assets\logo.ico</ApplicationIcon>
 	</PropertyGroup>
 
-	<!-- Images are embedded in the executable. The conditions keep the build green if a file is missing. -->
+	<!-- Belt and braces: drop the two global imports that cause the ambiguity. -->
+	<ItemGroup>
+		<Using Remove="System.Windows.Forms" />
+		<Using Remove="System.Drawing" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<Resource Include="Assets\logo.png" Condition="Exists('Assets\logo.png')" />
 		<Resource Include="Assets\logo.ico" Condition="Exists('Assets\logo.ico')" />

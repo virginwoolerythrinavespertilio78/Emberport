@@ -16,6 +16,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        TrayIcon.Current.Dispose();
         // Never leave a server running after the window is gone.
         ServiceRuntime.Current.StopAll();
         base.OnExit(e);

@@ -43,6 +43,9 @@ public partial class MainWindow : Window
 
         NavigationSidebar.PageSelected += OnPageSelected;
         NavigateTo(DefaultPageKey);
+
+        // Closing and minimising now hide the window instead of quitting.
+        TrayIcon.Current.Attach(this);
     }
 
     private static PlaceholderView Placeholder(string glyph, string title, string description) =>

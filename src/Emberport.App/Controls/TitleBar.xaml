@@ -6,55 +6,57 @@
     Height="48"
     Background="Transparent">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="Auto" />
+		</Grid.ColumnDefinitions>
 
-        <StackPanel
+		<StackPanel
             Grid.Column="0"
-            Margin="18,0,0,0"
+            Margin="16,0,0,0"
             VerticalAlignment="Center"
             Orientation="Horizontal">
-            <Ellipse
-                Width="10"
-                Height="10"
-                Fill="{StaticResource EmberGradientBrush}" />
-            <TextBlock
+			<Image
+                Width="20"
+                Height="20"
+                RenderOptions.BitmapScalingMode="HighQuality"
+                Source="/Assets/logo.png"
+                Stretch="Uniform" />
+			<TextBlock
                 Margin="10,0,0,0"
                 VerticalAlignment="Center"
                 FontSize="{StaticResource FontSizeBody}"
                 FontWeight="SemiBold"
                 Foreground="{StaticResource TextPrimaryBrush}"
                 Text="Emberport" />
-        </StackPanel>
+		</StackPanel>
 
-        <StackPanel
+		<StackPanel
             Grid.Column="2"
             Margin="0,0,8,0"
             VerticalAlignment="Center"
             Orientation="Horizontal"
             shell:WindowChrome.IsHitTestVisibleInChrome="True">
-            <Button
+			<Button
                 x:Name="MinimizeButton"
                 Click="OnMinimizeClick"
                 Content="&#xE921;"
                 Style="{StaticResource CaptionButtonStyle}"
-                ToolTip="Minimize" />
-            <Button
+                ToolTip="Hide to the notification area" />
+			<Button
                 x:Name="MaximizeButton"
                 Click="OnMaximizeClick"
                 Content="&#xE922;"
                 Style="{StaticResource CaptionButtonStyle}"
                 ToolTip="Maximize" />
-            <Button
+			<Button
                 x:Name="CloseButton"
                 Click="OnCloseClick"
                 Content="&#xE8BB;"
                 Style="{StaticResource CloseButtonStyle}"
-                ToolTip="Close" />
-        </StackPanel>
-    </Grid>
+                ToolTip="Hide to the notification area. Use Exit in the tray menu to quit." />
+		</StackPanel>
+	</Grid>
 </UserControl>
