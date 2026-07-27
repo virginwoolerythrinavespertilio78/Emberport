@@ -15,12 +15,12 @@
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Redis" Style="{StaticResource PageTitleStyle}" />
-                    <TextBlock Style="{StaticResource PageSubtitleStyle}"
-                               Text="The in-memory store used for caching, queues and sessions." />
+                    <TextBlock Text="In-memory cache server, command line and version switching."
+                               Style="{StaticResource PageSubtitleStyle}" />
                 </StackPanel>
 
                 <Button Grid.Column="1"
-                        Content="Refresh"
+                        Content="Rescan"
                         MinWidth="104"
                         Margin="16,4,0,0"
                         VerticalAlignment="Top"
@@ -28,6 +28,7 @@
                         Click="OnRefreshClick" />
             </Grid>
 
+            <!-- Server -->
             <Border Margin="0,24,0,0"
                     Padding="20,18"
                     CornerRadius="{StaticResource RadiusMd}"
@@ -35,70 +36,79 @@
                     BorderBrush="{StaticResource BorderSubtleBrush}"
                     BorderThickness="1">
                 <StackPanel>
+
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0"
-                                   Text="Server"
-                                   FontSize="{StaticResource FontSizeHeading}"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
-
-                        <Border Grid.Column="1"
-                                x:Name="StateBadge"
-                                Padding="10,5"
-                                CornerRadius="4"
-                                Background="#1FF87171">
-                            <TextBlock x:Name="StateText"
-                                       FontSize="10"
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Server"
+                                       FontSize="{StaticResource FontSizeHeading}"
                                        FontWeight="SemiBold"
-                                       Foreground="#F87171"
-                                       Text="STOPPED" />
+                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock x:Name="VersionText"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                        </StackPanel>
+
+                        <Border x:Name="StateBadge"
+                                Grid.Column="1"
+                                Margin="16,2,0,0"
+                                Padding="11,5"
+                                VerticalAlignment="Top"
+                                CornerRadius="{StaticResource RadiusSm}"
+                                Background="#2A1D1D">
+                            <TextBlock x:Name="StateText"
+                                       Text="Stopped"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="#F87171" />
                         </Border>
                     </Grid>
 
-                    <StackPanel Margin="0,14,0,0">
-                        <TextBlock Text="Version" FontSize="11" Foreground="{StaticResource TextTertiaryBrush}" />
-                        <TextBlock x:Name="VersionText"
-                                   Margin="0,3,0,0"
-                                   FontFamily="{StaticResource MonoFontFamily}"
-                                   FontSize="12"
-                                   TextTrimming="CharacterEllipsis"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
-
-                        <TextBlock Text="Connection" Margin="0,12,0,0" FontSize="11" Foreground="{StaticResource TextTertiaryBrush}" />
+                    <TextBlock Text="Connection"
+                               Margin="0,18,0,0"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextTertiaryBrush}" />
+                    <Border Margin="0,7,0,0"
+                            Padding="13,11"
+                            CornerRadius="{StaticResource RadiusSm}"
+                            Background="#121215"
+                            BorderBrush="#33333C"
+                            BorderThickness="1">
                         <TextBlock x:Name="ConnectionText"
-                                   Margin="0,3,0,0"
                                    FontFamily="{StaticResource MonoFontFamily}"
                                    FontSize="12"
-                                   Foreground="#FF8340" />
-                    </StackPanel>
+                                   Foreground="#FF8340"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Border>
 
                     <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
                         <Button Content="Open redis-cli"
-                                MinWidth="140"
+                                MinWidth="132"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 Click="OnOpenCliClick" />
                         <Button Content="Open folder"
-                                MinWidth="122"
-                                Margin="10,0,0,0"
+                                MinWidth="118"
+                                Margin="9,0,0,0"
                                 Style="{StaticResource GhostButtonStyle}"
                                 Click="OnOpenFolderClick" />
                     </StackPanel>
 
                     <TextBlock x:Name="StatusText"
-                               Margin="0,12,0,0"
+                               Margin="0,14,0,0"
                                TextWrapping="Wrap"
                                FontSize="12"
                                Foreground="{StaticResource TextTertiaryBrush}" />
                 </StackPanel>
             </Border>
 
-            <controls:ServiceHealthCard Kind="Redis" Margin="0,14,0,0" />
-
+            <!-- Quick check -->
             <Border Margin="0,14,0,0"
                     Padding="20,18"
                     CornerRadius="{StaticResource RadiusMd}"
@@ -110,13 +120,13 @@
                                FontSize="{StaticResource FontSizeHeading}"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimaryBrush}" />
-                    <TextBlock Margin="0,6,0,0"
+                    <TextBlock Text="Start Redis, open the command line and run these to confirm it answers."
+                               Margin="0,6,0,0"
                                TextWrapping="Wrap"
                                FontSize="{StaticResource FontSizeBody}"
-                               Foreground="{StaticResource TextSecondaryBrush}"
-                               Text="Open the CLI and run these to confirm the server answers." />
+                               Foreground="{StaticResource TextSecondaryBrush}" />
 
-                    <Border Margin="0,12,0,0"
+                    <Border Margin="0,14,0,0"
                             Padding="14,12"
                             CornerRadius="{StaticResource RadiusSm}"
                             Background="#0B0B0D"
@@ -124,13 +134,20 @@
                             BorderThickness="1">
                         <TextBlock FontFamily="{StaticResource MonoFontFamily}"
                                    FontSize="12"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   Text="redis-cli ping&#x0a;redis-cli set hello emberport&#x0a;redis-cli get hello&#x0a;redis-cli info server" />
+                                   Foreground="{StaticResource TextSecondaryBrush}">
+                            redis-cli ping<LineBreak />
+                            redis-cli set emberport works<LineBreak />
+                            redis-cli get emberport
+                        </TextBlock>
                     </Border>
                 </StackPanel>
             </Border>
 
+            <!-- Version switching -->
             <controls:VersionPicker Kind="Redis" Margin="0,14,0,0" />
+
+            <!-- Health check, kept last so its results never push other cards around -->
+            <controls:ServiceHealthCard Kind="Redis" Margin="0,14,0,0" />
 
         </StackPanel>
     </ScrollViewer>

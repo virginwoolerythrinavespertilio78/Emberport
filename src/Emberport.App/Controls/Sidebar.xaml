@@ -106,7 +106,7 @@
                     <TextBlock
                         FontSize="{StaticResource FontSizeCaption}"
                         Foreground="{StaticResource TextTertiaryBrush}"
-                        Text="Emberport v0.1.0" />
+                        Text="Emberport v0.4.0" />
                     <TextBlock
                         Margin="0,2,0,0"
                         FontSize="{StaticResource FontSizeCaption}"
