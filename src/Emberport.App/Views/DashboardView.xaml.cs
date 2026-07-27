@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace Emberport.Views;
@@ -78,7 +77,7 @@ public partial class DashboardView : UserControl
 
             if (installation is not null)
             {
-                Attach(card, kind, installation);
+                Attach(card, kind);
             }
 
             ServiceList.Items.Add(card);
@@ -95,7 +94,7 @@ public partial class DashboardView : UserControl
         UpdateActivePhp();
     }
 
-    private void Attach(ServiceCard card, ServiceKind kind, BinaryInstallation installation)
+    private void Attach(ServiceCard card, ServiceKind kind)
     {
         var process = ServiceRuntime.Current.For(kind);
 
@@ -103,65 +102,17 @@ public partial class DashboardView : UserControl
 
         card.StartRequested += (_, _) =>
         {
-            if (!EnsurePortIsFree(kind))
-            {
-                card.Status = ServiceStatus.Stopped;
-                return;
-            }
-
             card.Status = ServiceStatus.Starting;
-
-            try
-            {
-                process.Start(CreateLaunchRequest(kind, installation));
-                card.Status = ServiceStatus.Running;
-            }
-            catch (Exception exception)
-            {
-                card.Status = ServiceStatus.Faulted;
-                MessageBox.Show(exception.Message, $"Could not start {kind.ToDisplayName()}");
-            }
+            card.Status = ServiceControl.Start(kind) ? ServiceStatus.Running : ServiceStatus.Stopped;
         };
 
         card.StopRequested += (_, _) =>
         {
-            process.Stop();
+            ServiceControl.Stop(kind);
             card.Status = ServiceStatus.Stopped;
         };
 
         _monitored.Add(new MonitoredService(card, process));
-    }
-
-    // A busy port makes the service exit instantly, which looks like a silent failure.
-    private static bool EnsurePortIsFree(ServiceKind kind)
-    {
-        var port = ServiceLauncher.PortFor(kind);
-
-        if (port == 0 || !PortInspector.IsInUse(port))
-        {
-            return true;
-        }
-
-        var owner = PortInspector.DescribeOwner(port) ?? "an unknown process";
-
-        MessageBox.Show(
-            $"Port {port} is already in use by {owner}.\n\n"
-            + $"Close that program, or change the {kind.ToDisplayName()} port, and try again.",
-            "Port is not available",
-            MessageBoxButton.OK,
-            MessageBoxImage.Warning);
-
-        return false;
-    }
-
-    private ProcessLaunchRequest CreateLaunchRequest(ServiceKind kind, BinaryInstallation installation)
-    {
-        if (kind == ServiceKind.MySql && !MySqlConfigurator.IsInitialized())
-        {
-            PrepareMySqlStorage(installation);
-        }
-
-        return ServiceLauncher.CreateLaunchRequest(kind, installation);
     }
 
     private void OnOpenSiteClick(object sender, RoutedEventArgs e) => OpenInBrowser(SiteUrl);
@@ -182,7 +133,7 @@ public partial class DashboardView : UserControl
     // A browser tab against a dead server only shows a confusing error page.
     private void OpenInBrowser(string url)
     {
-        if (!ServiceRuntime.Current.For(ServiceKind.Apache).IsRunning)
+        if (!ServiceControl.IsRunning(ServiceKind.Apache))
         {
             MessageBox.Show(
                 "Apache is not running. Start it from the dashboard first.",
@@ -203,38 +154,7 @@ public partial class DashboardView : UserControl
         ActivePhpText.Text = php is null ? "Not found" : php.Version;
     }
 
-    // The very first launch has to build the system tables, which blocks the UI.
-    private static void PrepareMySqlStorage(BinaryInstallation installation)
-    {
-        var configPath = MySqlConfigurator.EnsureConfigured(installation, MySqlConfigurator.DefaultPort);
-
-        MessageBox.Show(
-            """
-            MySQL needs to be prepared before it can run for the first time.
-
-            Emberport will now create the database storage in the data folder.
-            This happens only once and can take up to a minute.
-
-            The window may stop responding while this runs. That is expected,
-            please do not close Emberport until it finishes.
-            """,
-            "Preparing MySQL",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
-
-        Mouse.OverrideCursor = Cursors.Wait;
-
-        try
-        {
-            MySqlConfigurator.EnsureInitialized(installation, configPath);
-        }
-        finally
-        {
-            Mouse.OverrideCursor = null;
-        }
-    }
-
-    // Polling keeps the UI honest when a service dies on its own.
+    // Polling keeps the UI honest when a service dies on its own, or when the tray starts it.
     private void OnStatusTick(object? sender, EventArgs e)
     {
         foreach (var (card, process) in _monitored)

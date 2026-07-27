@@ -3,7 +3,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
+using Emberport.Models;
 using Emberport.Services;
 using Forms = System.Windows.Forms;
 
@@ -12,14 +16,24 @@ namespace Emberport.Controls;
 /// <summary>A themed replacement for the default notification area menu.</summary>
 public partial class TrayMenu : Window
 {
+    private static readonly SolidColorBrush RunningDot = new((Color)ColorConverter.ConvertFromString("#3DD68C"));
+    private static readonly SolidColorBrush StoppedDot = new((Color)ColorConverter.ConvertFromString("#5A5A63"));
+
     private static TrayMenu? _open;
     private static DateTime _closedAt = DateTime.MinValue;
 
+    private readonly DispatcherTimer _timer;
+
     private bool _closing;
+    private bool _busy;
 
     private TrayMenu()
     {
         InitializeComponent();
+
+        // Keeps the dots honest when a server dies or is toggled from the window.
+        _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _timer.Tick += (_, _) => Refresh();
     }
 
     /// <summary>Opens the panel above the notification area, or closes the open one.</summary>
@@ -69,7 +83,28 @@ public partial class TrayMenu : Window
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         LocalhostLabel.Text = $"Open localhost:{AppSettings.Current.ApachePort}";
+
+        Refresh();
         PlaceNearTray();
+
+        _timer.Start();
+    }
+
+    private void OnClosed(object sender, EventArgs e) => _timer.Stop();
+
+    private void Refresh()
+    {
+        Apply(ServiceKind.Apache, ApacheState, ApacheDot);
+        Apply(ServiceKind.MySql, MySqlState, MySqlDot);
+        Apply(ServiceKind.Redis, RedisState, RedisDot);
+    }
+
+    private static void Apply(ServiceKind kind, TextBlock state, Border dot)
+    {
+        var running = ServiceControl.IsRunning(kind);
+
+        state.Text = running ? "Running" : "Stopped";
+        dot.Background = running ? RunningDot : StoppedDot;
     }
 
     /// <summary>Anchors the panel to the bottom right of the working area, like a Windows flyout.</summary>
@@ -97,7 +132,14 @@ public partial class TrayMenu : Window
         return scale <= 0 ? 1 : scale;
     }
 
-    private void OnDeactivated(object sender, EventArgs e) => Dismiss();
+    // Starting a server can raise a dialog, which would otherwise close this panel.
+    private void OnDeactivated(object sender, EventArgs e)
+    {
+        if (!_busy)
+        {
+            Dismiss();
+        }
+    }
 
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
@@ -105,6 +147,33 @@ public partial class TrayMenu : Window
         {
             Dismiss();
         }
+    }
+
+    private void OnApacheClick(object sender, RoutedEventArgs e) => Switch(ServiceKind.Apache);
+
+    private void OnMySqlClick(object sender, RoutedEventArgs e) => Switch(ServiceKind.MySql);
+
+    private void OnRedisClick(object sender, RoutedEventArgs e) => Switch(ServiceKind.Redis);
+
+    private void Switch(ServiceKind kind)
+    {
+        _busy = true;
+        Mouse.OverrideCursor = Cursors.Wait;
+
+        try
+        {
+            ServiceControl.Toggle(kind);
+        }
+        finally
+        {
+            Mouse.OverrideCursor = null;
+            _busy = false;
+        }
+
+        Refresh();
+
+        // A dialog may have stolen the focus, so the panel takes it back.
+        Activate();
     }
 
     private void OnOpenAppClick(object sender, RoutedEventArgs e)
