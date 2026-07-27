@@ -38,8 +38,7 @@ public partial class MainWindow : Window
 
             ["settings"] = () => new SettingsView(),
 
-            ["about"] = () => Placeholder("\uE946", "About",
-                "Emberport is built and maintained by Hojjat Jahanpour."),
+            ["about"] = () => new AboutView(),
         };
 
         NavigationSidebar.PageSelected += OnPageSelected;
