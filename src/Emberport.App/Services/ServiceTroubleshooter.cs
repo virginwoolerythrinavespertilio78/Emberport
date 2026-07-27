@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Emberport.Models;
@@ -34,8 +35,10 @@ public static class ServiceTroubleshooter
             false));
 
         CheckExecutable(kind, installation, findings);
+        CheckStrayProcess(kind, findings);
         CheckPort(kind, findings);
         CheckApachePhpPairing(kind, findings);
+        CheckMySqlStorage(kind, findings);
         CheckLog(kind, findings);
 
         return findings;
@@ -56,6 +59,39 @@ public static class ServiceTroubleshooter
         findings.Add(File.Exists(executable)
             ? new HealthFinding("Executable found", executable, false)
             : new HealthFinding("Executable missing", $"Expected {executable}. The build may be incomplete.", true));
+    }
+
+    private static void CheckStrayProcess(ServiceKind kind, List<HealthFinding> findings)
+    {
+        var name = ProcessName(kind);
+
+        if (name is null)
+        {
+            return;
+        }
+
+        var count = Process.GetProcessesByName(name).Length;
+        var managed = ServiceRuntime.Current.For(kind).IsRunning;
+
+        if (count == 0)
+        {
+            findings.Add(new HealthFinding($"No stray {name}.exe", "Nothing from an earlier run is left behind.", false));
+            return;
+        }
+
+        if (managed && count == 1)
+        {
+            findings.Add(new HealthFinding($"{name}.exe is running", "Started by Emberport.", false));
+            return;
+        }
+
+        // An orphan keeps the data folder and the port locked, so the new one dies instantly.
+        findings.Add(new HealthFinding(
+            $"{count} {name}.exe process(es) already running",
+            managed
+                ? $"An extra copy is alive. Close it, or run: taskkill /IM {name}.exe /F"
+                : $"Emberport did not start these. They lock the port and the data folder. Run: taskkill /IM {name}.exe /F",
+            true));
     }
 
     private static void CheckPort(ServiceKind kind, List<HealthFinding> findings)
@@ -119,6 +155,75 @@ public static class ServiceTroubleshooter
         }
     }
 
+    private static void CheckMySqlStorage(ServiceKind kind, List<HealthFinding> findings)
+    {
+        if (kind != ServiceKind.MySql)
+        {
+            return;
+        }
+
+        var config = MySqlConfigurator.ConfigFilePath;
+
+        findings.Add(File.Exists(config)
+            ? new HealthFinding("Configuration file found", config, false)
+            : new HealthFinding("No my.ini yet", $"It is written to {config} on the first start.", false));
+
+        var data = MySqlConfigurator.DataDirectory;
+
+        if (!Directory.Exists(data))
+        {
+            findings.Add(new HealthFinding(
+                "Data folder missing",
+                $"{data} will be created and initialized on the next start. The first run takes up to a minute.",
+                false));
+
+            return;
+        }
+
+        var missing = new List<string>();
+
+        foreach (var entry in new[] { "ibdata1", "mysql", "sys" })
+        {
+            var candidate = Path.Combine(data, entry);
+
+            if (!File.Exists(candidate) && !Directory.Exists(candidate))
+            {
+                missing.Add(entry);
+            }
+        }
+
+        findings.Add(missing.Count == 0
+            ? new HealthFinding("Data folder looks initialized", data, false)
+            : new HealthFinding(
+                "Data folder is incomplete",
+                $"Missing: {string.Join(", ", missing)}. A failed first run leaves it half written. Delete {data} and start MySQL again.",
+                true));
+
+        findings.Add(CanWrite(data)
+            ? new HealthFinding("Data folder is writable", "MySQL can create its files.", false)
+            : new HealthFinding(
+                "Data folder is not writable",
+                $"MySQL cannot write to {data}. Run Emberport as administrator, or exclude the folder from your antivirus.",
+                true));
+    }
+
+    private static bool CanWrite(string directory)
+    {
+        var probe = Path.Combine(directory, $".emberport-{Guid.NewGuid():N}.tmp");
+
+        try
+        {
+            File.WriteAllText(probe, string.Empty);
+            File.Delete(probe);
+
+            return true;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
     private static void CheckLog(ServiceKind kind, List<HealthFinding> findings)
     {
         var path = LogPath(kind);
@@ -139,8 +244,9 @@ public static class ServiceTroubleshooter
         findings.Add(new HealthFinding(
             "Last log lines",
             string.IsNullOrWhiteSpace(tail) ? "The log is empty." : tail,
-            tail.Contains("error", StringComparison.OrdinalIgnoreCase)
-                || tail.Contains("fatal", StringComparison.OrdinalIgnoreCase)));
+            tail.Contains("[ERROR]", StringComparison.OrdinalIgnoreCase)
+                || tail.Contains("fatal", StringComparison.OrdinalIgnoreCase)
+                || tail.Contains("aborting", StringComparison.OrdinalIgnoreCase)));
     }
 
     private static string? ExecutablePath(ServiceKind kind, BinaryInstallation installation) => kind switch
@@ -149,6 +255,14 @@ public static class ServiceTroubleshooter
         ServiceKind.MySql => Path.Combine(installation.DirectoryPath, "bin", "mysqld.exe"),
         ServiceKind.Redis => Path.Combine(installation.DirectoryPath, "redis-server.exe"),
         ServiceKind.Php => Path.Combine(installation.DirectoryPath, "php.exe"),
+        _ => null,
+    };
+
+    private static string? ProcessName(ServiceKind kind) => kind switch
+    {
+        ServiceKind.Apache => "httpd",
+        ServiceKind.MySql => "mysqld",
+        ServiceKind.Redis => "redis-server",
         _ => null,
     };
 

@@ -97,6 +97,8 @@
                 </StackPanel>
             </Border>
 
+            <controls:ServiceHealthCard Kind="Redis" Margin="0,14,0,0" />
+
             <Border Margin="0,14,0,0"
                     Padding="20,18"
                     CornerRadius="{StaticResource RadiusMd}"

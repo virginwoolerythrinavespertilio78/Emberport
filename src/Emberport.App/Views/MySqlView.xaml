@@ -123,6 +123,8 @@
                 </StackPanel>
             </Border>
 
+            <controls:ServiceHealthCard Kind="MySql" Margin="0,14,0,0" />
+
             <controls:VersionPicker Kind="MySql" Margin="0,14,0,0" />
 
         </StackPanel>
