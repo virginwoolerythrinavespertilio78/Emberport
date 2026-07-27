@@ -23,9 +23,15 @@
 		<Description>A modern local development environment for Windows: Apache, PHP, MySQL and Redis with one click.</Description>
 	</PropertyGroup>
 
-	<!-- Images are embedded in the executable. The condition keeps the build green if a file is missing. -->
+	<!-- The executable icon. Windows also uses it for the taskbar, Alt+Tab and the window. -->
+	<PropertyGroup Condition="Exists('Assets\logo.ico')">
+		<ApplicationIcon>Assets\logo.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<!-- Images are embedded in the executable. The conditions keep the build green if a file is missing. -->
 	<ItemGroup>
 		<Resource Include="Assets\logo.png" Condition="Exists('Assets\logo.png')" />
+		<Resource Include="Assets\logo.ico" Condition="Exists('Assets\logo.ico')" />
 	</ItemGroup>
 
 </Project>
