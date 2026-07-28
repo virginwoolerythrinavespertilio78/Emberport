@@ -2,4 +2,5 @@
   <Folder Name="/src/">
     <Project Path="src/Emberport.App/Emberport.App.csproj" />
   </Folder>
+  <Project Path="tests/Emberport.Tests/Emberport.Tests.csproj" />
 </Solution>
