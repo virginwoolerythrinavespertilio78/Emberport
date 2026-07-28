@@ -483,5 +483,6 @@ $RECYCLE.BIN/
 
 bin/
 tools/
+obj/
 data/
-config/
+/config/
