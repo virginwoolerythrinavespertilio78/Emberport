@@ -34,6 +34,12 @@ public sealed class AppSettings
 
     public int RedisPort { get; set; } = 6379;
 
+    /// <summary>Where database dumps are written. Null means the default backups folder.</summary>
+    public string? BackupDirectory { get; set; }
+
+    /// <summary>Whether dumps are gzip compressed while they are written.</summary>
+    public bool BackupCompress { get; set; } = true;
+
     public static void Save()
     {
         try
