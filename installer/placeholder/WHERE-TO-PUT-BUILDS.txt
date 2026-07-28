@@ -1,0 +1,41 @@
+Emberport
+=========
+
+Extract each portable server build into its own folder inside this directory.
+Emberport scans them at startup and reads the version out of every build, so
+you can keep as many versions side by side as you like and switch between them
+from inside the app.
+
+Example layout
+--------------
+
+  bin\apache\httpd-2.4.68-260617-Win64-VS18\bin\httpd.exe
+  bin\php\php-8.5.8-Win32-vs17-x64\php.exe
+  bin\php\php-8.2.32-Win32-vs16-x64\php.exe
+  bin\mysql\mysql-9.7.1-winx64\bin\mysqld.exe
+  bin\redis\redis-x64-5.0.14.1\redis-server.exe
+  tools\phpmyadmin\index.php
+
+The folder names do not matter. Only the executables inside them do.
+
+Where to download
+-----------------
+
+  PHP          https://windows.php.net/download        (Thread Safe, x64)
+  Apache       https://www.apachelounge.com/download/  (Win64)
+  MySQL        https://dev.mysql.com/downloads/mysql/  (ZIP Archive, x64)
+  Redis        https://github.com/tporadowski/redis/releases
+  phpMyAdmin   https://www.phpmyadmin.net/downloads/   (all languages)
+
+Important
+---------
+
+* PHP must be the Thread Safe (TS) build. Apache loads PHP as a module and a
+  non thread safe build will refuse to load its extensions.
+* Install the Visual C++ 2015-2022 Redistributable (x64) once:
+  https://aka.ms/vc14/vc_redist.x64.exe
+* Use the ZIP or portable archives, not the installers.
+
+After copying a build in, open Emberport and press Rescan.
+
+This file can be deleted safely.

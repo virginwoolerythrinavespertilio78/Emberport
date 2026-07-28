@@ -485,4 +485,6 @@ bin/
 tools/
 obj/
 data/
+dist/
+installer/Output/
 /config/
