@@ -212,6 +212,28 @@
 
             <Border Height="1" Margin="4,8,4,4" Background="{StaticResource BorderSubtleBrush}" />
 
+            <!-- System -->
+            <TextBlock Style="{StaticResource TraySectionStyle}" Text="SYSTEM" />
+
+            <Button Style="{StaticResource TrayItemStyle}"
+                    Click="OnStartupClick"
+                    ToolTip="Launch Emberport automatically when you sign in to Windows">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Style="{StaticResource TrayGlyphStyle}" Text="&#xE713;" />
+                    <TextBlock Grid.Column="1" Style="{StaticResource TrayLabelStyle}" Text="Start with Windows" />
+                    <TextBlock x:Name="StartupState" Grid.Column="2" Style="{StaticResource TrayStateStyle}" />
+                    <Border x:Name="StartupDot" Grid.Column="3" Style="{StaticResource TrayDotStyle}" />
+                </Grid>
+            </Button>
+
+            <Border Height="1" Margin="4,8,4,4" Background="{StaticResource BorderSubtleBrush}" />
+
             <Button Style="{StaticResource TrayItemStyle}" Click="OnExitClick">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource TrayGlyphStyle}" Text="&#xE7E8;" Foreground="#F87171" />

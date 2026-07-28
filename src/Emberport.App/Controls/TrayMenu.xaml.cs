@@ -18,6 +18,7 @@ public partial class TrayMenu : Window
 {
     private static readonly SolidColorBrush RunningDot = new((Color)ColorConverter.ConvertFromString("#3DD68C"));
     private static readonly SolidColorBrush StoppedDot = new((Color)ColorConverter.ConvertFromString("#5A5A63"));
+    private static readonly SolidColorBrush EnabledDot = new((Color)ColorConverter.ConvertFromString("#FF8340"));
 
     private static TrayMenu? _open;
     private static DateTime _closedAt = DateTime.MinValue;
@@ -97,6 +98,8 @@ public partial class TrayMenu : Window
         Apply(ServiceKind.Apache, ApacheState, ApacheDot);
         Apply(ServiceKind.MySql, MySqlState, MySqlDot);
         Apply(ServiceKind.Redis, RedisState, RedisDot);
+
+        RefreshStartup();
     }
 
     private static void Apply(ServiceKind kind, TextBlock state, Border dot)
@@ -105,6 +108,14 @@ public partial class TrayMenu : Window
 
         state.Text = running ? "Running" : "Stopped";
         dot.Background = running ? RunningDot : StoppedDot;
+    }
+
+    private void RefreshStartup()
+    {
+        var enabled = StartupRegistration.IsEnabled;
+
+        StartupState.Text = enabled ? "On" : "Off";
+        StartupDot.Background = enabled ? EnabledDot : StoppedDot;
     }
 
     /// <summary>Anchors the panel to the bottom right of the working area, like a Windows flyout.</summary>
@@ -173,6 +184,34 @@ public partial class TrayMenu : Window
         Refresh();
 
         // A dialog may have stolen the focus, so the panel takes it back.
+        Activate();
+    }
+
+    private void OnStartupClick(object sender, RoutedEventArgs e)
+    {
+        var wanted = !StartupRegistration.IsEnabled;
+
+        _busy = true;
+
+        try
+        {
+            var actual = StartupRegistration.Toggle();
+
+            if (actual != wanted)
+            {
+                MessageBox.Show(
+                    "Windows did not allow this change. Your security software may be protecting the startup list.",
+                    "Could not change the startup setting",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+        }
+        finally
+        {
+            _busy = false;
+        }
+
+        RefreshStartup();
         Activate();
     }
 
