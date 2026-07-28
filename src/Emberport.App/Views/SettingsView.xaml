@@ -30,6 +30,65 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="OptionCheckStyle" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border x:Name="Shell"
+                                Padding="14,12"
+                                CornerRadius="{StaticResource RadiusSm}"
+                                Background="#121215"
+                                BorderBrush="#33333C"
+                                BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border x:Name="Box"
+                                        Grid.Column="0"
+                                        Width="20"
+                                        Height="20"
+                                        CornerRadius="4"
+                                        Background="#1A1A1F"
+                                        BorderBrush="#33333C"
+                                        BorderThickness="1"
+                                        VerticalAlignment="Center">
+                                    <TextBlock x:Name="Tick"
+                                               Text="&#xE73E;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="11"
+                                               Foreground="#FF8340"
+                                               Visibility="Collapsed"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+
+                                <ContentPresenter Grid.Column="1"
+                                                  Margin="12,0,0,0"
+                                                  VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Shell" Property="Background" Value="#1A1A1F" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Shell" Property="Background" Value="#14FF6B1A" />
+                                <Setter TargetName="Shell" Property="BorderBrush" Value="#4DFF6B1A" />
+                                <Setter TargetName="Box" Property="BorderBrush" Value="#4DFF6B1A" />
+                                <Setter TargetName="Tick" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="34,28,34,32">
@@ -40,13 +99,11 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Settings" Style="{StaticResource PageTitleStyle}" />
                     <TextBlock Style="{StaticResource PageSubtitleStyle}"
-                               Text="Change the ports Emberport uses. Restart a service to apply its new port." />
+                               Text="Ports, Windows startup and the configuration file. Restart a service to apply its new port." />
                 </StackPanel>
-
                 <Button Grid.Column="1"
                         Content="Recheck"
                         MinWidth="104"
@@ -63,12 +120,10 @@
                     BorderBrush="{StaticResource BorderSubtleBrush}"
                     BorderThickness="1">
                 <StackPanel>
-
                     <TextBlock Text="Ports"
                                FontSize="{StaticResource FontSizeHeading}"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimaryBrush}" />
-
                     <Grid Margin="0,18,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="130" />
@@ -147,7 +202,38 @@
                                    FontSize="12"
                                    Foreground="{StaticResource TextTertiaryBrush}" />
                     </StackPanel>
+                </StackPanel>
+            </Border>
 
+            <Border Margin="0,14,0,0"
+                    Padding="20,18"
+                    CornerRadius="{StaticResource RadiusMd}"
+                    Background="{StaticResource SurfaceRaisedBrush}"
+                    BorderBrush="{StaticResource BorderSubtleBrush}"
+                    BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="Windows startup"
+                               FontSize="{StaticResource FontSizeHeading}"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                    <TextBlock Margin="0,9,0,0"
+                               TextWrapping="Wrap"
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Text="Emberport can launch when you sign in to Windows. It opens straight into the notification area, so nothing appears on screen. Servers are not started automatically." />
+
+                    <CheckBox x:Name="StartupCheck"
+                              Margin="0,16,0,0"
+                              HorizontalAlignment="Left"
+                              Style="{StaticResource OptionCheckStyle}"
+                              Content="Start Emberport when I sign in to Windows"
+                              Click="OnStartupClick" />
+
+                    <TextBlock x:Name="StartupStatus"
+                               Margin="0,12,0,0"
+                               TextWrapping="Wrap"
+                               FontSize="12"
+                               Foreground="{StaticResource TextTertiaryBrush}" />
                 </StackPanel>
             </Border>
 
@@ -162,13 +248,11 @@
                                FontSize="{StaticResource FontSizeHeading}"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimaryBrush}" />
-
                     <TextBlock Margin="0,9,0,0"
                                TextWrapping="Wrap"
                                FontSize="{StaticResource FontSizeBody}"
                                Foreground="{StaticResource TextSecondaryBrush}"
                                Text="Everything on this page is stored in a plain JSON file you can edit by hand." />
-
                     <Border Margin="0,14,0,0"
                             Padding="13,11"
                             CornerRadius="{StaticResource RadiusSm}"
@@ -181,7 +265,6 @@
                                    TextTrimming="CharacterEllipsis"
                                    Foreground="#FF8340" />
                     </Border>
-
                     <Button Content="Open config folder"
                             MinWidth="160"
                             Margin="0,16,0,0"

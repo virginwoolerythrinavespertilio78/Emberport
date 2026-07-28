@@ -25,13 +25,17 @@ public partial class SettingsView : UserControl
         ApachePortBox.Text = AppSettings.Current.ApachePort.ToString(CultureInfo.InvariantCulture);
         MySqlPortBox.Text = AppSettings.Current.MySqlPort.ToString(CultureInfo.InvariantCulture);
         RedisPortBox.Text = AppSettings.Current.RedisPort.ToString(CultureInfo.InvariantCulture);
-
         SettingsFilePath.Text = AppSettings.FilePath;
 
         RefreshPortStatus();
+        RefreshStartup();
     }
 
-    private void OnRecheckClick(object sender, RoutedEventArgs e) => RefreshPortStatus();
+    private void OnRecheckClick(object sender, RoutedEventArgs e)
+    {
+        RefreshPortStatus();
+        RefreshStartup();
+    }
 
     private void OnSaveClick(object sender, RoutedEventArgs e)
     {
@@ -59,7 +63,6 @@ public partial class SettingsView : UserControl
         AppSettings.Save();
 
         SaveStatus.Text = "Saved · restart a running service to apply its new port.";
-
         RefreshPortStatus();
     }
 
@@ -70,7 +73,6 @@ public partial class SettingsView : UserControl
         RedisPortBox.Text = "6379";
 
         SaveStatus.Text = "Defaults filled in · press Save to store them.";
-
         RefreshPortStatus();
     }
 
@@ -82,6 +84,45 @@ public partial class SettingsView : UserControl
         Directory.CreateDirectory(folder);
 
         Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
+    }
+
+    // Windows owns this setting, not the JSON file, so the registry is always the source of truth.
+    private void OnStartupClick(object sender, RoutedEventArgs e)
+    {
+        var wanted = StartupCheck.IsChecked == true;
+
+        if (wanted)
+        {
+            StartupRegistration.Enable();
+        }
+        else
+        {
+            StartupRegistration.Disable();
+        }
+
+        var actual = StartupRegistration.IsEnabled;
+
+        if (actual != wanted)
+        {
+            MessageBox.Show(
+                "Windows did not allow this change. Your security software may be protecting the startup list.",
+                "Could not change the startup setting",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+
+        RefreshStartup();
+    }
+
+    private void RefreshStartup()
+    {
+        var enabled = StartupRegistration.IsEnabled;
+
+        StartupCheck.IsChecked = enabled;
+
+        StartupStatus.Text = enabled
+            ? $"Registered for {Environment.UserName} · launches hidden in the notification area."
+            : "Not registered · Emberport only runs when you open it yourself.";
     }
 
     private void RefreshPortStatus()
